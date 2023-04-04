@@ -7,7 +7,6 @@ TL;DR:
 =#
 using ProbNumDiffEq, BenchmarkTools, ProfileView, SciMLBase, ForwardDiff
 
-
 function get_hh_ivp(; tspan=(0.0, 100.0), p=[20, 15])
     I(t) =
         if t isa ProbNumDiffEq.Taylor1 || t isa ProbNumDiffEq.TaylorN
@@ -64,9 +63,7 @@ function get_hh_ivp(; tspan=(0.0, 100.0), p=[20, 15])
     return prob
 end
 
-
 prob = get_hh_ivp()
-
 
 NU = 3
 
@@ -77,8 +74,11 @@ sol_iwp.destats
 sol_ioup =
     solve(prob, EK1(prior=IOUP(3, update_rate_parameter=true), smooth=false), dense=false);
 sol_ioup.destats
-@btime solve(prob, EK1(prior=IOUP(3, update_rate_parameter=true), smooth=false), dense=false);
-
+@btime solve(
+    prob,
+    EK1(prior=IOUP(3, update_rate_parameter=true), smooth=false),
+    dense=false,
+);
 
 # Profileview shows what's taking time: The matrix exponential is expensive
 @profview for _ in 1:10
