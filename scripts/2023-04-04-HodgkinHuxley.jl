@@ -5,7 +5,8 @@ TL;DR:
 - Rosenbrock-style IOUP consistently needs less steps to reach similar or lower errors
 - But, runtimes are higher
 =#
-using ProbNumDiffEq, BenchmarkTools, ProfileView, SciMLBase, ForwardDiff
+using ProbNumDiffEq,
+    BenchmarkTools, ProfileView, SciMLBase, ForwardDiff, OrdinaryDiffEq, LinearAlgebra
 
 function get_hh_ivp(; tspan=(0.0, 100.0), p=[20, 15])
     I(t) =
@@ -64,23 +65,31 @@ function get_hh_ivp(; tspan=(0.0, 100.0), p=[20, 15])
 end
 
 prob = get_hh_ivp()
+ref = solve(prob, Vern9(), abstol=1e-10, reltol=1e-10)
 
 NU = 3
 
 sol_iwp = solve(prob, EK1(prior=IWP(3), smooth=false), dense=false);
 sol_iwp.destats
+norm(sol_iwp.u[end] - ref.u[end])
 @btime solve(prob, EK1(prior=IWP(3), smooth=false), dense=false);
 
+sol_iwp = solve(prob, EK0(prior=IWP(3), smooth=false), dense=false);
+sol_iwp.destats
+norm(sol_iwp.u[end] - ref.u[end])
+@btime solve(prob, EK0(prior=IWP(3), smooth=false), dense=false);
+
 sol_ioup =
-    solve(prob, EK1(prior=IOUP(3, update_rate_parameter=true), smooth=false), dense=false);
+    solve(prob, EK0(prior=IOUP(3, update_rate_parameter=true), smooth=false), dense=false);
 sol_ioup.destats
+norm(sol_ioup.u[end] - ref.u[end])
 @btime solve(
     prob,
-    EK1(prior=IOUP(3, update_rate_parameter=true), smooth=false),
+    EK0(prior=IOUP(3, update_rate_parameter=true), smooth=false),
     dense=false,
 );
 
 # Profileview shows what's taking time: The matrix exponential is expensive
 @profview for _ in 1:10
-    solve(prob, EK1(prior=IOUP(3, update_rate_parameter=true), smooth=false), dense=false)
+    solve(prob, EK0(prior=IOUP(3, update_rate_parameter=true), smooth=false), dense=false)
 end
