@@ -68,28 +68,24 @@ prob = get_hh_ivp()
 ref = solve(prob, Vern9(), abstol=1e-10, reltol=1e-10)
 
 NU = 3
+ALG = EK0
 
-sol_iwp = solve(prob, EK1(prior=IWP(3), smooth=false), dense=false);
+sol_iwp = solve(prob, ALG(prior=IWP(NU), smooth=false), dense=false);
 sol_iwp.destats
 norm(sol_iwp.u[end] - ref.u[end])
-@btime solve(prob, EK1(prior=IWP(3), smooth=false), dense=false);
-
-sol_iwp = solve(prob, EK0(prior=IWP(3), smooth=false), dense=false);
-sol_iwp.destats
-norm(sol_iwp.u[end] - ref.u[end])
-@btime solve(prob, EK0(prior=IWP(3), smooth=false), dense=false);
+@btime solve(prob, ALG(prior=IWP(NU), smooth=false), dense=false);
 
 sol_ioup =
-    solve(prob, EK0(prior=IOUP(3, update_rate_parameter=true), smooth=false), dense=false);
+    solve(prob, ALG(prior=IOUP(NU, update_rate_parameter=true), smooth=false), dense=false);
 sol_ioup.destats
 norm(sol_ioup.u[end] - ref.u[end])
 @btime solve(
     prob,
-    EK0(prior=IOUP(3, update_rate_parameter=true), smooth=false),
+    ALG(prior=IOUP(NU, update_rate_parameter=true), smooth=false),
     dense=false,
 );
 
 # Profileview shows what's taking time: The matrix exponential is expensive
 @profview for _ in 1:10
-    solve(prob, EK0(prior=IOUP(3, update_rate_parameter=true), smooth=false), dense=false)
+    solve(prob, ALG(prior=IOUP(NU, update_rate_parameter=true), smooth=false), dense=false)
 end
