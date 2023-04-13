@@ -91,7 +91,12 @@ plot(
 
 # Solve with EK1 (IOUP)
 EK1_ioup_sol_with_diffusion =
-    solve(prob_with_diffusion, EK1(prior=IOUP(NU, laplace_1d(u0, DX))), adaptive=false, dt=dt)
+    solve(
+        prob_with_diffusion,
+        EK1(prior=IOUP(NU, laplace_1d(u0, DX))),
+        adaptive=false,
+        dt=dt,
+    )
 EK1_ioup_sol_without_diffusion = solve(
     prob_without_diffusion,
     EK1(prior=IOUP(NU, laplace_1d(u0, DX))),
