@@ -5,8 +5,8 @@ TL;DR:
 - Rosenbrock-style IOUP consistently needs less steps to reach similar or lower errors
 - But, runtimes are higher
 =#
-using ProbNumDiffEq,
-    BenchmarkTools, ProfileView, SciMLBase, ForwardDiff, OrdinaryDiffEq, LinearAlgebra
+using ProbNumDiffEq, SciMLBase, ForwardDiff, OrdinaryDiffEq, LinearAlgebra
+using BenchmarkTools, ProfileView
 
 function get_hh_ivp(; tspan=(0.0, 100.0), p=[20, 15])
     I(t) =
@@ -65,7 +65,7 @@ function get_hh_ivp(; tspan=(0.0, 100.0), p=[20, 15])
 end
 
 prob = get_hh_ivp()
-ref = solve(prob, Vern9(), abstol=1e-10, reltol=1e-10)
+ref = solve(prob, RadauIIA5(), abstol=1e-10, reltol=1e-10)
 
 NU = 3
 ALG = EK0
@@ -73,7 +73,7 @@ ALG = EK0
 sol_iwp = solve(prob, ALG(prior=IWP(NU), smooth=false), dense=false);
 sol_iwp.destats
 norm(sol_iwp.u[end] - ref.u[end])
-@btime solve(prob, ALG(prior=IWP(NU), smooth=false), dense=false);
+# @btime solve(prob, ALG(prior=IWP(NU), smooth=false), dense=false);
 
 sol_ioup =
     solve(prob, ALG(prior=IOUP(NU, update_rate_parameter=true), smooth=false), dense=false);
@@ -89,3 +89,18 @@ norm(sol_ioup.u[end] - ref.u[end])
 @profview for _ in 1:10
     solve(prob, ALG(prior=IOUP(NU, update_rate_parameter=true), smooth=false), dense=false)
 end
+
+ALG, NU = EK1, 3
+sol_iwp =
+    solve(prob, ALG(prior=IWP(NU), smooth=false), dense=false, adaptive=false, dt=1e-3);
+norm(sol_iwp.u[end] - ref.u[end])
+
+kwargs = (dense=false, adaptive=false, dt=1e-3)
+A0 = EK0(prior=IOUP(NU, update_rate_parameter=true), smooth=false);
+A1 = EK1(prior=IOUP(NU, update_rate_parameter=true), smooth=false);
+B0 = EK0(prior=IWP(NU), smooth=false);
+B1 = EK1(prior=IWP(NU), smooth=false);
+norm(solve(prob, A0; kwargs...).u[end] - ref.u[end])
+norm(solve(prob, A1; kwargs...).u[end] - ref.u[end])
+norm(solve(prob, B0; kwargs...).u[end] - ref.u[end])
+norm(solve(prob, B1; kwargs...).u[end] - ref.u[end])
