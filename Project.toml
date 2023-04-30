@@ -5,12 +5,16 @@ version = "0.1.0"
 
 [deps]
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
+ColorSchemes = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
 ExponentialUtilities = "d4d017d3-3776-5f7e-afef-a10c40355c18"
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
 ProbNumDiffEq = "bf3e78b0-7d74-48a5-b855-9609533b56a5"
 ProfileView = "c46f51b8-102a-5cf2-8d2c-8597cb0e0da7"
 SciMLBase = "0bca4576-84f4-4d90-8ffe-ffa030f20462"
+TuePlots = "7dc86ad5-723e-4492-bd0d-d0b58009a4c8"
 
 [compat]
 julia = "1.8"
