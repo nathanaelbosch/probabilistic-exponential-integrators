@@ -107,7 +107,8 @@ prob_rd_1d_sir(; N, diffusion=0.02, β=0.3, γ=0.07, P=1000.0,
     # xs = range(-5, 15, length=N)
     # I0 = @. 200 * exp(-(xs .^ 2) ./ 1 .^ 2) + 1
     xs = range(0, 2π, length=N)
-    I0 = @. 200 * sin(xs)^2 / (2π * xs + 1) + 1
+    noise = rand(N)
+    I0 = @. 100 * (sin(xs)+0.5noise)^2 + 1
     S0 = P * ones(N) - I0
     R0 = zeros(N)
     u0 = vcat(S0, I0, R0)

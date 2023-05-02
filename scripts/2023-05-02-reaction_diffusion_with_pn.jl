@@ -6,11 +6,11 @@ TL;DR:
 - the standard EK0 fails miserably
 - the EK1 is not so bad though
 =#
-using OrdinaryDiffEq, LinearAlgebra, ForwardDiff, SimpleUnPack, SparseArrays, ProbNumDiffEq
-using Plots
+using LinearAlgebra
+using OrdinaryDiffEq, ProbNumDiffEq, Plots
 import BayesExpIntExperiments as BEIE
 
-N = 32
+N = 16
 # prob, L = BEIE.prob_rd_1d_fisher(; N);
 prob, L = BEIE.prob_rd_1d_sir(; N);
 prob_badjac, _ = BEIE.prob_rd_1d_fisher(; N, fakejac=true);
