@@ -11,10 +11,13 @@ ExponentialUtilities = "d4d017d3-3776-5f7e-afef-a10c40355c18"
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
 Images = "916415d5-f1e6-5110-898d-aaa5f9f070e0"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
 ProbNumDiffEq = "bf3e78b0-7d74-48a5-b855-9609533b56a5"
 ProfileView = "c46f51b8-102a-5cf2-8d2c-8597cb0e0da7"
 SciMLBase = "0bca4576-84f4-4d90-8ffe-ffa030f20462"
+SimpleUnPack = "ce78b400-467f-4804-87d8-8f486da07d0a"
+SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 TuePlots = "7dc86ad5-723e-4492-bd0d-d0b58009a4c8"
 
 [compat]
