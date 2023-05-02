@@ -46,11 +46,17 @@ function prob_rd_1d(
     tspan=(0.0, 10.0),
     boundary_condition="zero-neumann",
     fakejac=false, # to overwrite f.jac with just the linear part
+    n_components=1,
 )
-    ∇² = ForwardDiff.jacobian(x -> laplace_1d(x; dx, boundary_condition), u0[:, 1])
-    p = (; reaction!, ∇²=sparse(∇²), diffusion_parameter=diffusion)
+    @assert length(u0) % n_components == 0
+    ∇² = ForwardDiff.jacobian(
+        x -> laplace_1d(x; dx, boundary_condition),
+        u0[1:length(u0)÷n_components]
+    ) |> sparse
+    ∇² = kron(I(n_components), ∇²)
+    p = (; reaction!, ∇²=∇², diffusion_parameter=diffusion)
 
-    L = diffusion * ∇²
+    L = diffusion * ∇² |> Matrix
 
     f = if fakejac
         ODEFunction(reaction_diffusion_vector_field_1d, jac=(J, u, p, t) -> (J .= L))
@@ -90,9 +96,9 @@ end
 prob_rd_1d_sir(; N, diffusion=0.02, β=0.3, γ=0.07, P=1000.0,
     tspan=(0.0, 150.0), dx=0.5, kwargs...) = begin
     reaction!(du, u) = begin
-        S, dS = view(u, :, 1), view(du, :, 1)
-        I, dI = view(u, :, 2), view(du, :, 2)
-        R, dR = view(u, :, 3), view(du, :, 3)
+        S, dS = view(u, 1:N), view(du, 1:N)
+        I, dI = view(u, N+1:2N), view(du, N+1:2N)
+        R, dR = view(u, 2N+1:3N), view(du, 2N+1:3N)
         @. dS = -β * S * I / P
         @. dI = β * S * I / P - γ * I
         @. dR = γ * I
@@ -104,7 +110,7 @@ prob_rd_1d_sir(; N, diffusion=0.02, β=0.3, γ=0.07, P=1000.0,
     I0 = @. 200 * sin(xs)^2 / (2π * xs + 1) + 1
     S0 = P * ones(N) - I0
     R0 = zeros(N)
-    u0 = hcat(S0, I0, R0)
+    u0 = vcat(S0, I0, R0)
 
-    return prob_rd_1d(; u0, reaction!, diffusion, tspan, dx, kwargs...)
+    return prob_rd_1d(; u0, reaction!, diffusion, tspan, dx, n_components=3, kwargs...)
 end

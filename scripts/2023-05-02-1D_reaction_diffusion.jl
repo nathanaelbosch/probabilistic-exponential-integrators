@@ -15,7 +15,7 @@ sol_acc = solve(prob, RadauIIA5(), abstol=1e-10, reltol=1e-10, saveat=1);
 anim = @animate for t in 0:prob.tspan[2]
     plot(sol_acc(t), ylim=(0, 1), label="", title="t = $t", ylabel="u(x, t)", xlabel="x")
 end
-gif(anim, "1dreactiondiffusion.gif", fps=30)
+gif(anim, "1dreactiondiffusion.gif", fps=15)
 
 ############################################################################################
 # SIR gif
@@ -26,7 +26,7 @@ sol_acc = solve(prob, Vern9(), abstol=1e-10, reltol=1e-10);
 # Create and save the gif
 anim = @animate for t in 0:prob.tspan[2]
     plot(
-        sol_acc(t),
+        reshape(sol_acc(t), :, 3),
         ylim=(0, prob.p.reaction!.P),
         label="",
         title="t = $t",

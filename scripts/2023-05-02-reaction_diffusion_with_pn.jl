@@ -11,9 +11,9 @@ using Plots
 import BayesExpIntExperiments as BEIE
 
 N = 32
-prob, L = BEIE.prob_rd_1d_fisher(; N);
+# prob, L = BEIE.prob_rd_1d_fisher(; N);
+prob, L = BEIE.prob_rd_1d_sir(; N);
 prob_badjac, _ = BEIE.prob_rd_1d_fisher(; N, fakejac=true);
-L = Matrix(L);
 sol_acc = solve(prob, RadauIIA5(), abstol=1e-10, reltol=1e-10);
 NU = 3
 
