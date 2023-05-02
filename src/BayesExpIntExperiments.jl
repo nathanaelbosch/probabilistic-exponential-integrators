@@ -5,8 +5,11 @@ using SparseArrays
 using SimpleUnPack
 using ForwardDiff
 using SciMLBase
+using ProbNumDiffEq
+using Statistics
+using DiffEqDevTools
 
-# Write your package code here.
 include("reaction_diffusion.jl")
+include("workprecision.jl")
 
 end
