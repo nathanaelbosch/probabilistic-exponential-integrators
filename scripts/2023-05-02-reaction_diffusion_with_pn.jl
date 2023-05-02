@@ -10,10 +10,13 @@ using LinearAlgebra
 using OrdinaryDiffEq, ProbNumDiffEq, Plots
 import BayesExpIntExperiments as BEIE
 
-N = 16
-# prob, L = BEIE.prob_rd_1d_fisher(; N);
-prob, L = BEIE.prob_rd_1d_sir(; N);
+N = 32
+prob, L = BEIE.prob_rd_1d_fisher(; N);
 prob_badjac, _ = BEIE.prob_rd_1d_fisher(; N, fakejac=true);
+DT = 0.1
+# prob, L = BEIE.prob_rd_1d_sir(; N);
+# prob_badjac, _ = BEIE.prob_rd_1d_sir(; N, fakejac=true);
+# DT = 1
 sol_acc = solve(prob, RadauIIA5(), abstol=1e-10, reltol=1e-10);
 NU = 3
 
@@ -45,25 +48,25 @@ sol_ek1_iwp = solve(
     prob,
     EK1(prior=IWP(NU), diffusionmodel=FixedDiffusion()),
     adaptive=false,
-    dt=0.1,
+    dt=DT,
 );
 sol_ek05_iwp = solve(
     prob_badjac,
     EK1(prior=IWP(NU), diffusionmodel=FixedDiffusion()),
     adaptive=false,
-    dt=0.1,
+    dt=DT,
 );
 sol_ek0_ioup = solve(
     prob,
     EK0(prior=IOUP(NU, L), diffusionmodel=FixedDiffusion()),
     adaptive=false,
-    dt=0.1,
+    dt=DT,
 );
 sol_ek1_ioup = solve(
     prob,
     EK1(prior=IOUP(NU, L), diffusionmodel=FixedDiffusion()),
     adaptive=false,
-    dt=0.1,
+    dt=DT,
 );
 p2 = plot(xlabel="t", ylabel="error", title="Fixed steps", yscale=:log10)
 # plot_errs!(p2, sol_ek0_iwp, label="EK0 IWP")
