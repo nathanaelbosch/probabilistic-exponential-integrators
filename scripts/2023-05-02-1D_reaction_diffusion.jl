@@ -25,6 +25,13 @@ sol_acc = solve(prob, Vern9(), abstol=1e-10, reltol=1e-10);
 
 # Create and save the gif
 anim = @animate for t in 0:prob.tspan[2]
-    plot(sol_acc(t), ylim=(0, prob.p.reaction!.P), label="", title="t = $t", ylabel="u(x, t)", xlabel="x")
+    plot(
+        sol_acc(t),
+        ylim=(0, prob.p.reaction!.P),
+        label="",
+        title="t = $t",
+        ylabel="u(x, t)",
+        xlabel="x",
+    )
 end
 gif(anim, "1dreactiondiffusion.gif", fps=30)

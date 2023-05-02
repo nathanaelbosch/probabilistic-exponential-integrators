@@ -47,23 +47,23 @@ function prob_rd_1d(
     boundary_condition="zero-neumann",
     fakejac=false, # to overwrite f.jac with just the linear part
 )
-    ∇² =
-        ForwardDiff.jacobian(x -> laplace_1d(x; dx, boundary_condition), u0[:, 1]) |> sparse
-    p = (; reaction!, ∇², diffusion_parameter=diffusion)
+    ∇² = ForwardDiff.jacobian(x -> laplace_1d(x; dx, boundary_condition), u0[:, 1])
+    p = (; reaction!, ∇²=sparse(∇²), diffusion_parameter=diffusion)
 
     L = diffusion * ∇²
 
-    prob = ODEProblem{true,SciMLBase.FullSpecialize()}(
-        fakejac ?
-        ODEFunction(reaction_diffusion_vector_field_1d, jac=(J, u, p, t) -> (J .= L)) :
-        reaction_diffusion_vector_field_1d,
-        u0, tspan, p,
-    )
+    f = if fakejac
+        ODEFunction(reaction_diffusion_vector_field_1d, jac=(J, u, p, t) -> (J .= L))
+    else
+        reaction_diffusion_vector_field_1d
+    end
+
+    prob = ODEProblem{true,SciMLBase.FullSpecialize()}(f, u0, tspan, p)
 
     return prob, L
 end
 
-"""Sensible default to get relatively nice fisher / spruce-budworm plots"""
+"""A sensible default for relatively nice fisher / spruce-budworm plots"""
 _logistic_init(N) = begin
     xs = range(-5, 20, length=N)
     return @. 1 - (exp(xs) / (1 + exp(xs)))
@@ -87,7 +87,8 @@ prob_rd_1d_zeldovich_frank_kamenetskii(; N, β=1, kwargs...) = begin
     return prob_rd_1d(; u0, reaction!, kwargs...)
 end
 
-prob_rd_1d_sir(; N, diffusion=0.02, β=0.3, γ=0.07, P=1000.0, kwargs...) = begin
+prob_rd_1d_sir(; N, diffusion=0.02, β=0.3, γ=0.07, P=1000.0,
+    tspan=(0.0, 150.0), dx=0.5, kwargs...) = begin
     reaction!(du, u) = begin
         S, dS = view(u, :, 1), view(du, :, 1)
         I, dI = view(u, :, 2), view(du, :, 2)
@@ -96,19 +97,14 @@ prob_rd_1d_sir(; N, diffusion=0.02, β=0.3, γ=0.07, P=1000.0, kwargs...) = begi
         @. dI = β * S * I / P - γ * I
         @. dR = γ * I
     end
+
     # xs = range(-5, 15, length=N)
     # I0 = @. 200 * exp(-(xs .^ 2) ./ 1 .^ 2) + 1
     xs = range(0, 2π, length=N)
-    I0 = @. 200 * sin(xs)^2 / (2π*xs+1) + 1
+    I0 = @. 200 * sin(xs)^2 / (2π * xs + 1) + 1
     S0 = P * ones(N) - I0
     R0 = zeros(N)
     u0 = hcat(S0, I0, R0)
-    return prob_rd_1d(;
-        u0,
-        reaction!,
-        diffusion=diffusion,
-        tspan=(0.0, 150.0),
-        dx=0.5,
-        kwargs...,
-    )
+
+    return prob_rd_1d(; u0, reaction!, diffusion, tspan, dx, kwargs...)
 end
