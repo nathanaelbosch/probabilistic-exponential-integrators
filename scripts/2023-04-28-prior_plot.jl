@@ -54,7 +54,6 @@ d, q = 2, 1
 D = d * (q + 1)
 E0 = [1 0] * ProbNumDiffEq.projection(d, q)(0)
 
-
 integ = init(prob, EK1(order=q))
 x0 = integ.cache.x.μ
 

@@ -49,10 +49,11 @@ function prob_rd_1d(
     n_components=1,
 )
     @assert length(u0) % n_components == 0
-    ∇² = ForwardDiff.jacobian(
-        x -> laplace_1d(x; dx, boundary_condition),
-        u0[1:length(u0)÷n_components]
-    ) |> sparse
+    ∇² =
+        ForwardDiff.jacobian(
+            x -> laplace_1d(x; dx, boundary_condition),
+            u0[1:length(u0)÷n_components],
+        ) |> sparse
     ∇² = kron(I(n_components), ∇²)
     p = (; reaction!, ∇²=∇², diffusion_parameter=diffusion)
 
@@ -108,7 +109,7 @@ prob_rd_1d_sir(; N, diffusion=0.02, β=0.3, γ=0.07, P=1000.0,
     # I0 = @. 200 * exp(-(xs .^ 2) ./ 1 .^ 2) + 1
     xs = range(0, 2π, length=N)
     noise = rand(N)
-    I0 = @. 100 * (sin(xs)+0.5noise)^2 + 1
+    I0 = @. 100 * (sin(xs) + 0.5noise)^2 + 1
     S0 = P * ones(N) - I0
     R0 = zeros(N)
     u0 = vcat(S0, I0, R0)
