@@ -62,7 +62,7 @@ function MyWorkPrecision(
             :time => tbest,
             :nf => isnothing(errsol.destats) ? nothing : errsol.destats.nf,
             :njacs => isnothing(errsol.destats) ? nothing : errsol.destats.njacs,
-            :nsteps => length(sol),
+            :nsteps => length(sol)-1,
         )
         if dense_errors
             r[:L2] = errsol.errors[:L2]

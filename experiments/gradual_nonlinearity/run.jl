@@ -14,10 +14,10 @@ function f!(du, u, p, t)
 end
 u0 = [1.0]
 tspan = (0.0, 10.0)
-p = (a=-1, b=0.0001)
-prob = ODEProblem(f!, u0, tspan, p)
-prob_badjac = ODEProblem(ODEFunction(f!, jac=(J, u, p, t) -> (J .= p.a)), u0, tspan, p)
-ref_sol = solve(prob, RadauIIA5(), abstol=1e-20, reltol=1e-20);
+# p = (a=-1, b=0.0001)
+# prob = ODEProblem(f!, u0, tspan, p)
+# prob_badjac = ODEProblem(ODEFunction(f!, jac=(J, u, p, t) -> (J .= p.a)), u0, tspan, p)
+# ref_sol = solve(prob, RadauIIA5(), abstol=1e-20, reltol=1e-20);
 # plot(ref_sol)
 
 # plot(solve(prob, RadauIIA5(), abstol=1e-8, reltol=1e-8, p=(a=-1, b=0.001)))
@@ -27,10 +27,9 @@ ref_sol = solve(prob, RadauIIA5(), abstol=1e-20, reltol=1e-20);
 # plot!(solve(prob, RadauIIA5(), abstol=1e-8, reltol=1e-8, p=(a=-1, b=0.99)))
 
 # PN
-abstols = 1.0 ./ 10.0 .^ (4:13)
-reltols = 1.0 ./ 10.0 .^ (1:10)
+NU = 2
 
-function get_wps(b)
+function get_wps(b; abstols, reltols, dts, dm)
     p = (a=-1, b=b)
     prob = ODEProblem(f!, u0, tspan, p)
     prob_badjac = ODEProblem(ODEFunction(f!, jac=(J, u, p, t) -> (J .= p.a)), u0, tspan, p)
@@ -42,22 +41,47 @@ function get_wps(b)
         prob, alg, abstols, reltols;
         appxsol=ref_sol,
         timeseries_errors=true,
+        dense_errors=true,
+        dts=dts,
     )
 
-    wps["EK0+IWP(3)"] = wp_fun(prob, EK0(prior=IWP(3)))
-    wps["EK1+IWP(3)"] = wp_fun(prob, EK1(prior=IWP(3)))
-    wps["EK0.5+IWP(3)"] = wp_fun(prob_badjac, EK1(prior=IWP(3)))
-    wps["EK0+IOUP(3)"] = wp_fun(prob, EK0(prior=IOUP(3, prob.p.a)))
-    wps["EK1+IOUP(3)"] = wp_fun(prob, EK1(prior=IOUP(3, prob.p.a)))
+    wps["Tsit5"] = wp_fun(prob, Tsit5())
+    wps["BS3"] = wp_fun(prob, BS3())
+    wps["EK0+IWP($NU)"] = wp_fun(prob, EK0(prior=IWP(NU), diffusionmodel=dm))
+    wps["EK1+IWP($NU)"] = wp_fun(prob, EK1(prior=IWP(NU), diffusionmodel=dm))
+    wps["EK0.5+IWP($NU)"] = wp_fun(prob_badjac, EK1(prior=IWP(NU), diffusionmodel=dm))
+    wps["EK0+IOUP($NU)"] = wp_fun(prob, EK0(prior=IOUP(NU, prob.p.a), diffusionmodel=dm))
+    wps["EK1+IOUP($NU)"] = wp_fun(prob, EK1(prior=IOUP(NU, prob.p.a), diffusionmodel=dm))
 
     return wps
 end
 
-wpss = Dict(
-    0.001 => get_wps(0.001),
-    0.01 => get_wps(0.01),
-    0.1 => get_wps(0.1),
-    0.9 => get_wps(0.9),
+dts = 1.0 ./ 10.0 .^ (-1:1//4:1)
+abstols = reltols = zero(dts)
+dm = FixedDiffusion()
+wpss_fixed = Dict(
+    0.000001 => get_wps(0.000001; abstols, reltols, dts, dm),
+    0.00001 => get_wps(0.00001; abstols, reltols, dts, dm),
+    0.0001 => get_wps(0.0001; abstols, reltols, dts, dm),
+    0.001 => get_wps(0.001; abstols, reltols, dts, dm),
+    0.01 => get_wps(0.01; abstols, reltols, dts, dm),
+    0.1 => get_wps(0.1; abstols, reltols, dts, dm),
+    0.9 => get_wps(0.9; abstols, reltols, dts, dm),
 )
 
-save(joinpath(DIR, "workprecisiondata.jld"), "wpss", wpss)
+# dm = DynamicDiffusion()
+# abstols = 1.0 ./ 10.0 .^ (4:13)
+# reltols = 1.0 ./ 10.0 .^ (1:10)
+# wpss_adaptive = Dict(
+#     0.00001 => get_wps(0.00001; abstols, reltols, dm, dts=nothing),
+#     0.0001 => get_wps(0.0001; abstols, reltols, dm, dts=nothing),
+#     0.001 => get_wps(0.001; abstols, reltols, dm, dts=nothing),
+#     0.01 => get_wps(0.01; abstols, reltols, dm, dts=nothing),
+#     0.1 => get_wps(0.1; abstols, reltols, dm, dts=nothing),
+#     0.9 => get_wps(0.9; abstols, reltols, dm, dts=nothing),
+# )
+
+save(joinpath(DIR, "workprecisiondata.jld"),
+     "wpss_fixed", wpss_fixed,
+     "wpss_adaptive", wpss_adaptive
+     )
