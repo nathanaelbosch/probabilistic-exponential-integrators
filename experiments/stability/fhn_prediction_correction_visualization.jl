@@ -26,16 +26,18 @@ plot_ts = tspan[1]:0.1:tspan[2]
 vecvec2mat(x) = hcat(x...)
 
 C1, C2 = Makie.wong_colors()[1:2]
-NU = 1
-κ = 1e-2
-# κ = 1.0
+NU = 2
+κ = 1e-3
+DM = FixedDiffusion(κ, false)
+ALG = EK1
+# κ = 1.
 
 fig = Figure(resolution=(600, 400))
 ax = Axis(fig[1, 1], xlabel="t", ylabel="u")
 series!(plot_ts, vecvec2mat(sol.(plot_ts)), solid_color=:black, linestyle=:dash)
 
 # Plot the prior
-integ = init(prob, EK1(prior=IWP(NU), diffusionmodel=FixedDiffusion(κ, false)))
+integ = init(prob, ALG(prior=IWP(NU), diffusionmodel=DM))
 push!(integ.sol.diffusions, integ.cache.default_diffusion)
 push!(integ.sol.x_smooth, integ.sol.x_filt[1])
 function plot_pn_sol!(ax, us, ts; name, color, kwargs...)
@@ -50,7 +52,7 @@ end
 plot_pn_sol!(ax, integ.sol(plot_ts).u, plot_ts; name="IWP", color=C1)
 
 L = ForwardDiff.jacobian(u -> (du = copy(u); fitzhughnagumo(du, u, p, 0.0); du), u0)
-integ = init(prob, EK1(prior=IOUP(NU, L), diffusionmodel=FixedDiffusion(κ, false)))
+integ = init(prob, ALG(prior=IOUP(NU, L), diffusionmodel=DM))
 push!(integ.sol.diffusions, integ.cache.default_diffusion)
 push!(integ.sol.x_smooth, integ.sol.x_filt[1])
 plot_pn_sol!(ax, integ.sol(plot_ts).u, plot_ts; name="IOUP", color=C2)
@@ -67,18 +69,20 @@ end
 
 iwp_filtests = StructArray(
     [
-    get_t_est(EK1(prior=IWP(NU), diffusionmodel=FixedDiffusion(κ, false)), t)
+    get_t_est(ALG(prior=IWP(NU), diffusionmodel=DM), t)
     for t in plot_ts[2:end]
 ])
 plot_pn_sol!(ax2, iwp_filtests, plot_ts[2:end]; color=C1, name="IWP")
 ioup_filtests = StructArray(
     [
-    get_t_est(EK1(prior=IOUP(NU, L), diffusionmodel=FixedDiffusion(κ, false)), t)
+    get_t_est(ALG(prior=IOUP(NU, L), diffusionmodel=DM), t)
     for t in plot_ts[2:end]
 ])
 plot_pn_sol!(ax2, ioup_filtests, plot_ts[2:end]; color=C2, name="IOUP")
 
-ylims!(ax, -5, 5)
-ylims!(ax2, -5, 5)
+# ylims!(ax, -5, 5)
+# ylims!(ax2, -5, 5)
+# ylims!(ax, 0, 2)
+# ylims!(ax2, 0, 2)
 
 save("fig.pdf", fig, px_per_unit=1)

@@ -30,7 +30,7 @@ wp_fun(prob, alg) = BEIE.MyWorkPrecision(
     dts=dts,
 )
 
-NU = 1
+NU = 2
 DM = FixedDiffusion()
 
 wps = Dict()

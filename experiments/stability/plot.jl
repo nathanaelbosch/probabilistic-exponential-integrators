@@ -8,7 +8,7 @@ DIR = "experiments/stability"
 data = load(joinpath(DIR, "workprecisiondata.jld"))
 wps = data["wps"]
 
-NU = 1
+NU = parse(Int, collect(filter(x -> startswith(x, "EK0+IWP"), keys(wps)))[1][9])
 algs = (
     # "Tsit5",
     # "BS3",
@@ -59,7 +59,7 @@ T1 = Theme(
     figsize=true,
     thinned=true,
     # width_coeff=0.35,
-    nrows=2, ncols=4,
+    nrows=1, ncols=1,
     # subplot_height_to_width_ratio=1/TuePlots.GOLDEN_RATIO,
     # subplot_height_to_width_ratio=1,
 )
@@ -92,7 +92,6 @@ T2 = Theme(
 set_theme!(merge(T2, T1))
 
 fig = Figure()
-axes = []
 sclines = Dict()
     ax = Axis(
         fig[1, 1];
@@ -106,16 +105,15 @@ sclines = Dict()
         # title=L"\dot{y} = - y + 10^{%$(Int(log10(b)))} \cdot y^2",
         xlabel="dt",
         # xlabel="nf",
-        ylabel="final error",
+        ylabel="l2 error",
     )
-    push!(axes, ax)
     for alg in algs
         wp = wps[alg]
         scl = scatterlines!(
             ax,
             [r[:dt] for r in wp],
             # [r[:nf] for r in wp],
-            [r[:final] for r in wp];
+            [r[:l2] for r in wp];
             label=alg,
             alg_styles[alg]...,
             color=(alg_styles[alg].color, 0.5),
@@ -123,23 +121,18 @@ sclines = Dict()
         )
         sclines[alg] = scl
     end
-linkyaxes!(axes...)
-linkxaxes!(axes...)
-# ylims!.(axes, Ref((1e-13, 1e1)))
 
-# for i in 1:length(bs)
-#     b = bs[i]
-#     Label(fig.layout[1, i, TopLeft()],
-#           L"\dot{y} = -y + %$b y^2")
-# end
 
-leg = Legend(
-    fig[:, end+1],
-    [sclines[k] for k in algs],
-    [labels[k] for k in algs],
-)
+# leg = Legend(
+#     fig[:, end+1],
+#     [sclines[k] for k in algs],
+#     [labels[k] for k in algs],
+# )
+axislegend(ax)
 
 colgap!(fig.layout, 5)
+# ylims!(ax, 1e-5, 1e5) # NU = 1
+ylims!(ax, 1e-10, 1e5)  # NU = 2
 
 # save("../bayes-exp-int/figures/gradual_nonlinearity_$steps.pdf", fig, pt_per_unit=1)
 save("plot.pdf", fig, pt_per_unit=1)
