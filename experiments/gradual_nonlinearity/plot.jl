@@ -5,6 +5,8 @@ using OrdinaryDiffEq
 # using Plots
 using LaTeXStrings
 
+import BayesExpIntExperiments: alg_styles, C1, C2, Labels, PlotTheme
+
 # DIR = @__DIR__
 DIR = "experiments/gradual_nonlinearity"
 data = load(joinpath(DIR, "workprecisiondata.jld"))
@@ -24,78 +26,23 @@ algs = (
     "EK1+IOUP($NU)",
 )
 
-C1, C2 = Makie.wong_colors()[1:2]
-alg_styles = Dict(
-    "Tsit5" => (color=:gray,
-        # linestyle=:solid,
-        marker=:dtriangle),
-    "BS3" => (color=:gray,
-        # linestyle=:solid,
-        marker=:utriangle),
-    "EK0+IWP($NU)" => (color=C1,
-        # linestyle=:solid,
-        marker=:diamond),
-    "EK1+IWP($NU)" => (color=C1,
-        # linestyle=:dash,
-        marker=:pentagon),
-    "EK0.5+IWP($NU)" => (color=C1,
-        # linestyle=:dot,
-        marker=:hexagon),
-    "EK0+IOUP($NU)" => (color=C2,
-        # linestyle=:solid,
-        marker=:star4),
-    "EK1+IOUP($NU)" => (color=C2,
-        # linestyle=:dash,
-        marker=:star5),
-)
-labels = Dict(
-    "Tsit5" => L"\text{Tsit5}",
-    "BS3" => L"\text{BS3}",
-    "EK0+IWP($NU)" => L"\text{EK0 & IWP(%$NU)}",
-    "EK1+IWP($NU)" => L"\text{EK1 & IWP(%$NU)}",
-    "EK0.5+IWP($NU)" => L"\text{EK0.5 & IWP(%$NU)}",
-    "EK0+IOUP($NU)" => L"\text{EK0 & IOUP(%$NU)}",
-    "EK1+IOUP($NU)" => L"\text{EK1 & IOUP(%$NU)}",
-)
-
-T1 = Theme(
-    TuePlots.SETTINGS[:NEURIPS];
-    font=false,
-    fontsize=true,
-    figsize=true,
-    thinned=true,
-    # width_coeff=0.35,
-    nrows=2, ncols=4,
-    # subplot_height_to_width_ratio=1/TuePlots.GOLDEN_RATIO,
-    # subplot_height_to_width_ratio=1,
-)
-T2 = Theme(
-    # Axis=(
-    # xlabelsize=8,
-    # ylabelsize=8,
-    # titlesize=8
-    # ),
-    Label=(
-        halign=:left,
-        tellwidth=false,
-        # tellheight=false,
-        justification=:left,
-        padding=(12, 0, 1, 0),
-        # font="Times New Roman",
-    ),
-    ScatterLines=(
-        markersize=8,
-        linewidth=3,
-        strokewidth=0.2,
-    ),
-    Legend=(;
-        labelsize=8,
-        patchlabelgap=-8,
-        patchsize=(10, 10),
-        framevisible=false,
+set_theme!(
+    merge(
+        Theme(),
+        PlotTheme,
+        Theme(
+            TuePlots.SETTINGS[:NEURIPS];
+            font=false,
+            fontsize=true,
+            figsize=true,
+            thinned=true,
+            # width_coeff=0.35,
+            nrows=2, ncols=4,
+            # subplot_height_to_width_ratio=1/TuePlots.GOLDEN_RATIO,
+            # subplot_height_to_width_ratio=1,
+        ),
     ),
 )
-set_theme!(merge(T2, T1))
 
 fig = Figure()
 axes = []
