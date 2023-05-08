@@ -2,43 +2,51 @@ using ProbNumDiffEq, LinearAlgebra, Random
 import ProbNumDiffEq: Gaussian
 using CairoMakie, TuePlots, LaTeXStrings, ColorSchemes
 
+import BayesExpIntExperiments: PlotTheme
+
 COLORS = ColorSchemes.tableau_10.colors
 # COLORS = ColorSchemes.Set1_3
 ALPHA = 0.5
 
-T1 = Theme(
-    TuePlots.SETTINGS[:NEURIPS]; font=true,
-    fontsize=true,
-    figsize=true,
-    thinned=true,
-    # width_coeff=0.35,
-    nrows=1, ncols=3,
-    # subplot_height_to_width_ratio=1/TuePlots.GOLDEN_RATIO,
-    # subplot_height_to_width_ratio=1,
+set_theme!(
+    merge(
+        Theme(
+        Axis=(;
+            titlesize=7
+            # xgridvisible=false,
+            # ygridvisible=false,
+        ),
+        Lines=(;
+            linewidth=0.5,
+            linestyle=:dash,
+        ),
+        Series=(
+            linewidth=0.5,
+            solid_color=:gray,
+        ),
+        # Label=(
+        #     halign=:left,
+        #     tellwidth=false,
+        #     # tellheight=false,
+        #     justification=:left,
+        #     padding=(12, 0, 1, 0),
+        #     # font="Times New Roman",
+        # ),
+        ),
+        PlotTheme,
+        Theme(
+            TuePlots.SETTINGS[:NEURIPS];
+            font=false,
+            fontsize=true,
+            figsize=true,
+            thinned=true,
+            # width_coeff=0.35,
+            nrows=1, ncols=3,
+            # subplot_height_to_width_ratio=1/TuePlots.GOLDEN_RATIO,
+            # subplot_height_to_width_ratio=1,
+        ),
+    ),
 )
-T2 = Theme(
-    Axis=(
-        xgridvisible=false,
-        ygridvisible=false,
-    ),
-    Lines=(;
-        linewidth=0.5,
-        linestyle=:dash,
-    ),
-    Series=(
-        linewidth=0.5,
-        solid_color=:gray,
-    ),
-    Label=(
-        halign=:left,
-        tellwidth=false,
-        # tellheight=false,
-        justification=:left,
-        padding=(12, 0, 1, 0),
-        # font="Times New Roman",
-    ),
-)
-set_theme!(merge(T1, T2))
 
 α = 0.2
 L_undamped = [0 -2π; 2π 0]
@@ -92,17 +100,23 @@ M = 10
 fig = Figure()
 ax_iwp = Axis(
     fig[1, 1];
-    yticks=[-5, 0, 5],
+    yticks=[-3, 0, 3],
     xticks=[0, T],
-    # xticklabelsvisible = false
+    # xticklabelsvisible = false,
+    title=L"\text{\textbf{a.} integrated Wiener process}",
 )
 ax_ioup = Axis(
     fig[1, 2];
-    yticks=[-2, 0, 2],
+    yticks=[-3, 0, 3],
     xticks=[0, T],
-    # xticklabelsvisible=false
+    yticklabelsvisible=false,
+    title=L"\text{\textbf{b.} integrated Ornstein-Uhlenbeck}",
 )
-ax_ioup_init = Axis(fig[1, 3]; yticks=[-2, 0, 2], xticks=[0, T])
+ax_ioup_init = Axis(
+    fig[1, 3]; yticks=[-3, 0, 3], xticks=[0, T],
+    yticklabelsvisible=false,
+    title=L"\text{\textbf{c.} IOUP + initial value}",
+)
 # rowgap!(fig.layout, 10)
 colgap!(fig.layout, 10)
 
@@ -155,24 +169,9 @@ end
 xlims!(ax_iwp, (0, T))
 xlims!(ax_ioup, (0, T))
 xlims!(ax_ioup_init, (0, T))
-ylims!(ax_iwp, (-5, 5))
-ylims!(ax_ioup, (-2, 2))
-ylims!(ax_ioup_init, (-2, 2))
-
-# for (ax, label) in zip([ax_iwp, ax_ioup, ax_ioup_init], ["A", "B", "C"])
-#     text!(
-#         ax, 0, 1,
-#         text=label,
-#         # font=:bold,
-#         align=(:left, :top),
-#         offset=(2, 2),
-#         space=:relative,
-#         fontsize=T1.fontsize[],
-#     )
-# end
-Label(fig.layout[1, 1, TopLeft()], L"\text{\textbf{a.} integrated Wiener process}")
-Label(fig.layout[1, 2, TopLeft()], L"\text{\textbf{b.} integrated Ornstein-Uhlenbeck}")
-Label(fig.layout[1, 3, TopLeft()], L"\text{\textbf{c.} IOUP + initial value}")
+ylims!(ax_iwp, (-3, 3))
+ylims!(ax_ioup, (-3, 3))
+ylims!(ax_ioup_init, (-3, 3))
 
 save("../bayes-exp-int/figures/priors.pdf", fig, pt_per_unit=1)
 # save("plot.pdf", fig, pt_per_unit=1)
