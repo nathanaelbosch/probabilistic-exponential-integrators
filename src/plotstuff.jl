@@ -29,6 +29,7 @@ PlotTheme = Theme(
         # patchlabelgap=-8,
         patchsize=(10, 10),
         framevisible=false,
+            rowgap=1,
     ),
 )
 
@@ -69,6 +70,7 @@ _alg_styles = Dict(
         # linestyle=:dot,
         marker=:hexagon,
     ),
+    "EKL+IWP" => (color=C1, marker=:hexagon),
     "EK0+IOUP" => (
         color=C2,
         # linestyle=:solid,
@@ -82,12 +84,12 @@ _alg_styles = Dict(
     "EK0+IOUP+RB" => (
         color=C3,
         # linestyle=:solid,
-        marker=:star4,
+        marker=:cross,
     ),
     "EK1+IOUP+RB" => (
         color=C3,
         # linestyle=:dash,
-        marker=:star5,
+        marker=:xcross,
     ),
 )
 
@@ -96,11 +98,13 @@ get_alg_style(str) = _alg_styles[_nonu(str)]
 
 function get_label(alg_str)
     if occursin("EK", alg_str)
-        match_result = match(r"(EK\d*)\+(I\w+)\((\w+)\)", alg_str)
+        match_result = match(r"(EK.*)\+(I\w+)\((\w+)\)", alg_str)
         ALG, PRIOR, NU = match_result
         RB = occursin("+RB", alg_str) ? " (RB)" : ""
-        return L"\text{%$ALG & %$PRIOR(%$NU)%$RB}"
+        # return L"\text{%$ALG & %$PRIOR(%$NU)%$RB}"
+        return "$ALG & $PRIOR($NU)$RB"
     else
-        return L"\text{%$alg_str}"
+        # return L"\text{%$alg_str}"
+        return alg_str
     end
 end

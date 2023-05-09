@@ -11,27 +11,27 @@ ALPHA = 0.5
 set_theme!(
     merge(
         Theme(
-        Axis=(;
-            titlesize=7
-            # xgridvisible=false,
-            # ygridvisible=false,
-        ),
-        Lines=(;
-            linewidth=0.5,
-            linestyle=:dash,
-        ),
-        Series=(
-            linewidth=0.5,
-            solid_color=:gray,
-        ),
-        # Label=(
-        #     halign=:left,
-        #     tellwidth=false,
-        #     # tellheight=false,
-        #     justification=:left,
-        #     padding=(12, 0, 1, 0),
-        #     # font="Times New Roman",
-        # ),
+            Axis=(;
+                titlesize=8
+                # xgridvisible=false,
+                # ygridvisible=false,
+            ),
+            Lines=(;
+                linewidth=0.5,
+                linestyle=:dash,
+            ),
+            Series=(
+                linewidth=0.5,
+                solid_color=:gray,
+            ),
+            # Label=(
+            #     halign=:left,
+            #     tellwidth=false,
+            #     # tellheight=false,
+            #     justification=:left,
+            #     padding=(12, 0, 1, 0),
+            #     # font="Times New Roman",
+            # ),
         ),
         PlotTheme,
         Theme(
@@ -103,19 +103,22 @@ ax_iwp = Axis(
     yticks=[-3, 0, 3],
     xticks=[0, T],
     # xticklabelsvisible = false,
-    title=L"\text{\textbf{a.} integrated Wiener process}",
+    title=rich(rich("a. ", font="Times New Roman Bold"),
+               rich("Integrated Wiener process", font="Times New Roman")),
 )
 ax_ioup = Axis(
     fig[1, 2];
     yticks=[-3, 0, 3],
     xticks=[0, T],
     yticklabelsvisible=false,
-    title=L"\text{\textbf{b.} integrated Ornstein-Uhlenbeck}",
+    title=rich(rich("b. ", font="Times New Roman Bold"),
+               rich("Integrated Ornstein-Uhlenbeck", font="Times New Roman")),
 )
 ax_ioup_init = Axis(
     fig[1, 3]; yticks=[-3, 0, 3], xticks=[0, T],
     yticklabelsvisible=false,
-    title=L"\text{\textbf{c.} IOUP + initial value}",
+    title=rich(rich("c. ", font="Times New Roman Bold"),
+               rich("IOUP + initial value", font="Times New Roman")),
 )
 # rowgap!(fig.layout, 10)
 colgap!(fig.layout, 10)

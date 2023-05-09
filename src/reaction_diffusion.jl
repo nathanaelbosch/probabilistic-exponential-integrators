@@ -43,7 +43,7 @@ function prob_rd_1d(
     ; u0, reaction!,
     dx=0.02,
     diffusion=0.01,
-    tspan=(0.0, 10.0),
+    tspan=(0.0, 3.0),
     boundary_condition="zero-neumann",
     fakejac=false, # to overwrite f.jac with just the linear part
     n_components=1,
@@ -72,14 +72,14 @@ end
 
 """A sensible default for relatively nice fisher / spruce-budworm plots"""
 _logistic_init(N) = begin
-    xs = range(-5, 20, length=N)
+    xs = range(-10, 20, length=N)
     return @. 1 - (exp(xs) / (1 + exp(xs)))
 end
 
-prob_rd_1d_fisher(; N, kwargs...) = begin
+prob_rd_1d_fisher(; N=32, diffusion=0.05, tspan=(0, 2), kwargs...) = begin
     reaction!(du, u) = (@. du = u * (1 - u))
     u0 = _logistic_init(N)
-    return prob_rd_1d(; u0, reaction!, kwargs...)
+    return prob_rd_1d(; u0, reaction!, tspan, diffusion, kwargs...)
 end
 
 prob_rd_1d_newell_whitehead_segel(; N, kwargs...) = begin
@@ -94,8 +94,8 @@ prob_rd_1d_zeldovich_frank_kamenetskii(; N, β=1, kwargs...) = begin
     return prob_rd_1d(; u0, reaction!, kwargs...)
 end
 
-prob_rd_1d_sir(; N, diffusion=0.02, β=0.3, γ=0.07, P=1000.0,
-    tspan=(0.0, 150.0), dx=0.5, kwargs...) = begin
+prob_rd_1d_sir(; N, diffusion=0.2, β=0.3, γ=0.07, P=1000.0,
+    tspan=(0.0, 70.0), dx=0.5, kwargs...) = begin
     reaction!(du, u) = begin
         S, dS = view(u, 1:N), view(du, 1:N)
         I, dI = view(u, N+1:2N), view(du, N+1:2N)
@@ -110,6 +110,8 @@ prob_rd_1d_sir(; N, diffusion=0.02, β=0.3, γ=0.07, P=1000.0,
     xs = range(0, 2π, length=N)
     noise = rand(N)
     I0 = @. 100 * (sin(xs) + 0.5noise)^2 + 1
+    I0 = zeros(N)
+    I0[1] = P*0.5
     S0 = P * ones(N) - I0
     R0 = zeros(N)
     u0 = vcat(S0, I0, R0)
