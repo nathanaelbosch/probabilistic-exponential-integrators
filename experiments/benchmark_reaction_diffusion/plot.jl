@@ -45,7 +45,7 @@ set_theme!(
                 xlabelsize=7,
                 ylabelsize=7,
             ),
-            Legend=(;labelsize=7),
+            Legend=(; labelsize=7),
         ),
         PlotTheme,
         Theme(
@@ -66,6 +66,7 @@ fig = Figure()
 
 # Solution plot
 prob, L = BEIE.prob_rd_1d_fisher()
+d = length(prob.u0)
 ref_sol = solve(prob, RadauIIA5(), abstol=1e-20, reltol=1e-20)
 Array(ref_sol)
 ax_sol = Axis(
@@ -80,7 +81,7 @@ ax_sol = Axis(
         # rich("Reaction-diffusion model", font="Times New Roman")),
         rich("ODE solution", font="Times New Roman")),
 )
-heatmap!(
+CairoMakie.heatmap!(
     ax_sol,
     1:length(ref_sol.u[1]),
     ref_sol.t,
@@ -126,7 +127,6 @@ ax_cal = Axis(
     title=rich(rich("c. ", font="Times Bold"),
         rich("Uncertainty calibration", font="Times")),
 )
-d = length(prob.u0)
 # dist = Chisq(length(prob.u0))
 vlines!(
     ax_cal,
@@ -168,8 +168,8 @@ leg = Legend(
 colgap!(fig.layout, 5)
 # ylims!(ax, 1e-5, 1e5) # NU = 1
 # xlims!(ax, 2e-3, 2e0)  # NU = 2
-ylims!(ax, 1e-11, 1e3)  # NU = 2
-ylims!(ax_cal, 1e-11, 1e3)  # NU = 2
-xlims!(ax_cal, 1e-10, 1e10)  # NU = 2
+CairoMakie.ylims!(ax, 1e-11, 1e3)  # NU = 2
+CairoMakie.ylims!(ax_cal, 1e-11, 1e3)  # NU = 2
+CairoMakie.xlims!(ax_cal, 1e-10, 1e10)  # NU = 2
 
 save("../bayes-exp-int/figures/reaction_diffusion.pdf", fig, pt_per_unit=1)

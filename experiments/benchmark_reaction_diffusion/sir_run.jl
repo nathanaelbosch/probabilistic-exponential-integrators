@@ -5,7 +5,7 @@ import BayesExpIntExperiments as BEIE
 
 DIR = "experiments/benchmark_reaction_diffusion"
 
-prob, L = BEIE.prob_rd_1d_sir(N=4)
+prob, L = BEIE.prob_rd_1d_sir(N=10)
 ref_sol = solve(prob, RadauIIA5(), abstol=1e-20, reltol=1e-20)
 # import Plots
 # Plots.plot(ref_sol)
@@ -67,26 +67,30 @@ NUS = (
     3,
     4,
 )
-ALGS = Dict(
-    :EK0 => EK0,
-    :EK1 => EK1,
-)
-PRIORS = Dict(
-    :IWP => (nu -> IWP(nu)),
-    :IOUP => (nu -> IOUP(nu, L)),
-    :IOUPRB => (nu -> IOUP(nu, update_rate_parameter=true)),
-)
-for nu in NUS, (alg_sym, alg) in ALGS, (prior_sym, prior) in PRIORS
-    # if alg_sym == :EK0 && prior_sym == :IWP
-    #     continue
-    # end
-    str = if prior_sym == :IOUPRB
-        "$alg_sym+IOUP($nu)+RB"
-    else
-        "$alg_sym+$prior_sym($nu)"
-    end
-    @info "start $str"
-    results[str] = wp_fun(prob, alg(prior=prior(nu), diffusionmodel=DM, smooth=SAVE))
-end
 
-save(joinpath(DIR, "sir_results.jld"), "results", results)
+for nu in NUS, extrapolation_jacobian in (:Z, :L, :F), correction_jacobian in (:Z, :L, :F)
+    alg, _prob = if correction_jacobian == :Z
+        EK0, prob
+    elseif correction_jacobian == :L
+        EK1, prob_appxjac
+    elseif correction_jacobian == :F
+        EK1, prob
+    end
+
+    prior = if extrapolation_jacobian == :Z
+        IWP(nu)
+    elseif extrapolation_jacobian == :L
+        IOUP(nu, L)
+    elseif extrapolation_jacobian == :F
+        IOUP(nu, update_rate_parameter=true)
+    end
+
+    alg_str = Dict(:Z => "EK0", :L => "EKL", :F => "EK1")[correction_jacobian]
+    prior_str =
+        Dict(:Z => "IWP($nu)", :L => "IOUP($nu)", :F => "IOUP($nu)+RB")[extrapolation_jacobian]
+
+    str = "$alg_str+$prior_str"
+    @info "start $str"
+    results[str] = wp_fun(prob, alg(prior=prior, diffusionmodel=DM, smooth=SAVE))
+    save(joinpath(DIR, "sir_results.jld"), "results", results)
+end
