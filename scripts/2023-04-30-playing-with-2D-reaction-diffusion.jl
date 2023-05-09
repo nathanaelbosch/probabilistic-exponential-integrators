@@ -1,20 +1,25 @@
-using OrdinaryDiffEq, LinearAlgebra
+using OrdinaryDiffEq, LinearAlgebra, ForwardDiff
 using Plots
 
 # Define the 2D laplacian operator for discretized space
-function laplace(f)
-    lap = zeros(eltype(f), size(f))
-    lap[2:end-1, 2:end-1] = (
-        f[1:end-2, 2:end-1]
-        .+ f[3:end, 2:end-1]
-        .+ f[2:end-1, 1:end-2]
-        .+
-        f[2:end-1, 3:end]
-        .-
-        4f[2:end-1, 2:end-1]
-    )
+function laplace_2d(x; dx=0.02)
+    lap = zeros(eltype(x), size(x))
+    lap[2:end-1, 2:end-1] =
+        (
+            x[1:end-2, 2:end-1]
+            .+
+            x[3:end, 2:end-1]
+            .+
+            x[2:end-1, 1:end-2]
+            .+
+            x[2:end-1, 3:end]
+            .-
+            4x[2:end-1, 2:end-1]
+        ) ./ dx^2
     return lap
 end
+
+N = 128
 
 # Define the vector field
 function gray_scott(duv, uv, p, t)
@@ -88,17 +93,18 @@ end
 #         end
 #     end
 # end
-u0 .= matrix[end:-1:begin, :]
+# u0 .= matrix[end:-1:begin, :]
 uvw0 = cat(u0, v0, dims=3);
 
 # Reaction diffusion model parameters
 # Du, Dv, f, k = 2e-5, 1e-5, 0.03, 0.07
 # Du, Dv, f, k = 1e-2, 1e-2, 0.062, 0.0609
-Du, Dv, f, k = 1e-2, 1e-2, 0.03, 0.07
+# Du, Dv, f, k = 1e-2, 1e-2, 0.03, 0.07
+Du, Dv, f, k = 2e-5, 1e-5, 0.038, 0.061
 p = (Du, Dv, f, k)
 
 # Set up problem and solve
-T = 5000
+T = 500
 tspan = (0.0, T)
 prob = ODEProblem(gray_scott, uvw0, tspan, p);
 sol = solve(prob, Vern9(), abstol=1e-8, reltol=1e-8, saveat=10);
