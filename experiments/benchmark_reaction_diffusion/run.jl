@@ -34,7 +34,7 @@ Plots.gif(anim, "1dreactiondiffusion.gif", fps=15)
 DM = FixedDiffusion()
 
 # Fixed steps:
-dts = 1.0 ./ 10.0 .^ (0:1//2:3)
+dts = 1.0 ./ 10.0 .^ (0:1//2:5//2)
 abstols = reltols = zero(dts)
 
 # Adaptive steps:
