@@ -71,7 +71,7 @@ ref_sol = solve(prob, RadauIIA5(), abstol=1e-20, reltol=1e-20)
 Array(ref_sol)
 ax_sol = Axis(
     fig[1, 1],
-    xticks=([0.5, length(prob.u0) + 0.5], ["0", "$d"]),
+    xticks=([0.5, length(prob.u0) + 0.5], ["0", "1"]),
     # xticksvisible=false,
     # xticklabelsvisible=false,
     yticks=[prob.tspan[1], prob.tspan[2]],

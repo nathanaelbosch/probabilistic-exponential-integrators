@@ -15,9 +15,10 @@ results = data["results"]
 # NU = results["NU"]
 NU = 2
 
-x = :nf
-xlabel = String(x)
-xlabel = "Number of function evaluations"
+x = :nsteps
+xlabel = x == :nsteps ? "Number of steps" :
+    x == :nf ? "Number of function evaluations" :
+    String(x)
 y = :final
 ylabel = String(y)
 ylabel = "Final error"
@@ -72,7 +73,7 @@ ref_sol = solve(prob, RadauIIA5(), abstol=1e-20, reltol=1e-20)
 Array(ref_sol)
 ax_sol = Axis(
     fig[1, 1],
-    xticks=([0.5, length(prob.u0) + 0.5], ["0", "$d"]),
+    xticks=([0.5, length(prob.u0) + 0.5], ["0", "1"]),
     # xticksvisible=false,
     # xticklabelsvisible=false,
     yticks=[prob.tspan[1], prob.tspan[2]],
@@ -110,6 +111,8 @@ for alg in algs
     wp = results[alg][2:end]
     scl = scatterlines!(
         ax,
+        x == :nsteps ?
+        [(prob.tspan[2] - prob.tspan[1]) / r[:dt] for r in wp] :
         [r[x] for r in wp],
         [r[y] for r in wp];
         label=alg,
