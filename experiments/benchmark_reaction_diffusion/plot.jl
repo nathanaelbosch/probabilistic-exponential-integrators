@@ -16,8 +16,7 @@ results = data["results"]
 NU = 2
 
 x = :nsteps
-xlabel = String(x)
-xlabel = "Number of steps"
+xlabel = x == :nsteps ? "Number of steps" : String(x)
 y = :final
 ylabel = "Final error"
 
@@ -109,7 +108,9 @@ for alg in algs
     wp = results[alg][2:end]
     scl = scatterlines!(
         ax,
-        [(prob.tspan[2] - prob.tspan[1]) / r[:dt] for r in wp],
+        x == :nsteps ?
+            [(prob.tspan[2] - prob.tspan[1]) / r[:dt] for r in wp] :
+            [r[x] for r in wp],
         [r[y] for r in wp];
         label=alg,
         get_alg_style(alg)...,
@@ -172,6 +173,6 @@ colgap!(fig.layout, 5)
 CairoMakie.ylims!(ax, nothing, 1e5)  # NU = 2
 CairoMakie.ylims!(ax_cal, nothing, 1e5)  # NU = 2
 CairoMakie.xlims!(ax_cal, 1e-10, 1e10)  # NU = 2
-CairoMakie.xlims!(ax, 1e0, nothing)  # NU = 2
+(x == :nsteps) && CairoMakie.xlims!(ax, 1e0, nothing)  # NU = 2
 
 save("../bayes-exp-int/figures/reaction_diffusion.pdf", fig, pt_per_unit=1)
