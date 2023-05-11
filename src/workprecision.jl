@@ -20,10 +20,12 @@ function MyWorkPrecision(
     dense_errors=false,
     timeseries_errors=false,
     verbose=false,
+    name=nothing,
     kwargs...,
 )
+    str = isnothing(name) ? "Workprecision..." : "[$name]"
     results = []
-    for (i, (atol, rtol)) in enumerate(zip(abstols, reltols))
+    @showprogress 1 "$str" for (i, (atol, rtol)) in enumerate(zip(abstols, reltols))
         if verbose
             if !isnothing(dts)
                 @info "i=$i" dts[i]
@@ -80,6 +82,9 @@ function MyWorkPrecision(
                 :njacs => isnothing(errsol.destats) ? nothing : errsol.destats.njacs,
                 :nsteps => length(sol) - 1,
             )
+            if r[:nsteps] == 1 && !isnothing(dts)
+                r[:nsteps] = (prob.tspan[2] - prob.tspan[1]) / dts[i]
+            end
             if dense_errors
                 r[:L2] = errsol.errors[:L2]
             end
@@ -93,7 +98,9 @@ function MyWorkPrecision(
                 r[:dt] = dts[i]
             end
 
-            @info "result" r
+            if verbose
+                @info "result" r
+            end
             push!(results, r)
         catch e
             if e isa InterruptException

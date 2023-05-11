@@ -6,6 +6,7 @@ import BayesExpIntExperiments as BEIE
 DIR = "experiments/benchmark_reaction_diffusion"
 
 prob, L = BEIE.prob_rd_1d_fisher()
+@info "run.jl problem size:" length(prob.u0)
 prob_appxjac = ODEProblem(ODEFunction(prob.f.f, jac=(J, u, p, t) -> (J .= L)),
                           prob.u0, prob.tspan, prob.p)
 ref_sol = solve(prob, RadauIIA5(), abstol=1e-20, reltol=1e-20)
@@ -34,7 +35,7 @@ solve(prob, EK1(prior=IOUP(3, L)), adaptive=false, dt=1e-1);
 DM = FixedDiffusion()
 
 # Fixed steps:
-dts = 1.0 ./ 10.0 .^ (0:1//2:5//2)
+dts = 1.0 ./ 10.0 .^ (-1//2:1//2:5//2)
 abstols = reltols = zero(dts)
 
 # Adaptive steps:
@@ -43,24 +44,27 @@ abstols = reltols = zero(dts)
 # dts = nothing
 
 FINAL = true
-wp_fun(prob, alg) = BEIE.MyWorkPrecision(
+wp_fun(prob, alg; kwargs...) = BEIE.MyWorkPrecision(
     prob, alg, abstols, reltols;
     appxsol=ref_sol,
     timeseries_errors=!FINAL,
     dense_errors=!FINAL,
     dts=dts,
     dense=!FINAL,
+    verbose=false,
+    save_everystep=!FINAL,
+    kwargs...
 )
 
 results = Dict()
-results["Tsit5"] = wp_fun(prob, Tsit5())
-@info "Tsit5 done"
-results["BS3"] = wp_fun(prob, BS3())
-@info "BS3 done"
-results["Rosenbrock23"] = wp_fun(prob, Rosenbrock23())
-@info "Rosenbrock23 done"
-results["Rosenbrock32"] = wp_fun(prob, Rosenbrock32())
-@info "Rosenbrock32 done"
+# results["Tsit5"] = wp_fun(prob, Tsit5())
+# @info "Tsit5 done"
+# results["BS3"] = wp_fun(prob, BS3())
+# @info "BS3 done"
+# results["Rosenbrock23"] = wp_fun(prob, Rosenbrock23())
+# @info "Rosenbrock23 done"
+# results["Rosenbrock32"] = wp_fun(prob, Rosenbrock32())
+# @info "Rosenbrock32 done"
 
 NUS = (
     1,
@@ -70,6 +74,15 @@ NUS = (
 )
 
 for nu in NUS, extrapolation_jacobian in (:Z, :L, :F), correction_jacobian in (:Z, :L, :F)
+    if extrapolation_jacobian == :L && correction_jacobian == :L
+        # IOUP + EKL is currently already covered by IOUP + EK0
+        continue
+    end
+    if extrapolation_jacobian == :F && correction_jacobian == :L
+        # Doing Rosenbrock but operating on an approximat Jacobian doesn't really make sense
+        continue
+    end
+
     alg, _prob = if correction_jacobian == :Z
         EK0, prob
     elseif correction_jacobian == :L
@@ -91,7 +104,8 @@ for nu in NUS, extrapolation_jacobian in (:Z, :L, :F), correction_jacobian in (:
         Dict(:Z => "IWP($nu)", :L => "IOUP($nu)", :F => "IOUP($nu)+RB")[extrapolation_jacobian]
 
     str = "$alg_str+$prior_str"
-    @info "start $str"
-    results[str] = wp_fun(prob, alg(prior=prior, diffusionmodel=DM, smooth=!FINAL))
+    # @info "start $str"
+    results[str] = wp_fun(
+        prob, alg(prior=prior, diffusionmodel=DM, smooth=!FINAL), name=str)
     save(joinpath(DIR, "workprecisiondata.jld"), "results", results)
 end

@@ -81,7 +81,7 @@ _logistic_init(N) = begin
     return @. 1 - (exp(xs) / (1 + exp(xs)))
 end
 
-prob_rd_1d_fisher(; N=30, Omega=(0, 1), tspan=(0, 2), diffusion=0.2, kwargs...) = begin
+prob_rd_1d_fisher(; N=100, Omega=(0, 1), tspan=(0, 2), diffusion=0.25, kwargs...) = begin
     xs = range(Omega[1], Omega[2], length=N)
     dx = (Omega[2] - Omega[1]) / N
     u0 = @. 1 - (exp(xs * 30 - 10) / (1 + exp(xs * 30 - 10)))

@@ -9,6 +9,7 @@ using ProbNumDiffEq
 using Statistics
 using DiffEqDevTools
 using CairoMakie
+using ProgressMeter
 
 include("reaction_diffusion.jl")
 include("workprecision.jl")

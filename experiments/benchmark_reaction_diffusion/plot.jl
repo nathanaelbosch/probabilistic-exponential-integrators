@@ -66,6 +66,7 @@ fig = Figure()
 
 # Solution plot
 prob, L = BEIE.prob_rd_1d_fisher()
+@info "plot.jl" length(prob.u0)
 d = length(prob.u0)
 ref_sol = solve(prob, RadauIIA5(), abstol=1e-20, reltol=1e-20)
 Array(ref_sol)
@@ -108,7 +109,7 @@ for alg in algs
     wp = results[alg][2:end]
     scl = scatterlines!(
         ax,
-        [r[x] for r in wp],
+        [(prob.tspan[2] - prob.tspan[1]) / r[:dt] for r in wp],
         [r[y] for r in wp];
         label=alg,
         get_alg_style(alg)...,
@@ -168,8 +169,9 @@ leg = Legend(
 colgap!(fig.layout, 5)
 # ylims!(ax, 1e-5, 1e5) # NU = 1
 # xlims!(ax, 2e-3, 2e0)  # NU = 2
-# CairoMakie.ylims!(ax, 1e-11, 1e3)  # NU = 2
-# CairoMakie.ylims!(ax_cal, 1e-11, 1e3)  # NU = 2
+CairoMakie.ylims!(ax, nothing, 1e5)  # NU = 2
+CairoMakie.ylims!(ax_cal, nothing, 1e5)  # NU = 2
 CairoMakie.xlims!(ax_cal, 1e-10, 1e10)  # NU = 2
+CairoMakie.xlims!(ax, 1e0, nothing)  # NU = 2
 
 save("../bayes-exp-int/figures/reaction_diffusion.pdf", fig, pt_per_unit=1)
