@@ -35,7 +35,7 @@ DM = FixedDiffusion()
 
 # Fixed steps:
 # dts = 1.0 ./ 10.0 .^ (-1//2:1//2:2)
-dts = 1.0 ./ 10.0 .^ (-1//2:1//2:3//2)
+dts = 1.0 ./ 10.0 .^ (-1//2:1//2:4//2)
 abstols = reltols = zero(dts)
 
 # Adaptive steps:
@@ -46,18 +46,19 @@ abstols = reltols = zero(dts)
 # dts = nothing
 
 FINAL = true
-wp_fun(prob, alg) = BEIE.MyWorkPrecision(
+wp_fun(prob, alg; kwargs...) = BEIE.MyWorkPrecision(
     prob, alg, abstols, reltols;
     appxsol=ref_sol,
     timeseries_errors=!FINAL,
     dts=dts,
-    verbose=true,
+    verbose=false,
     dense_errors=!FINAL,
     save_everystep=!FINAL,
     dense=!FINAL,
+    kwargs...
 )
 
-# results = Dict()
+results = Dict()
 # results["Tsit5"] = wp_fun(prob, Tsit5())
 # @info "Tsit5 done"
 # results["BS3"] = wp_fun(prob, BS3())
@@ -68,13 +69,22 @@ wp_fun(prob, alg) = BEIE.MyWorkPrecision(
 # @info "Rosenbrock32 done"
 
 NUS = (
-    # 1,
+    1,
     2,
-    # 3,
+    3,
     # 4,
 )
 
 for nu in NUS, extrapolation_jacobian in (:Z, :L, :F), correction_jacobian in (:Z, :L, :F)
+    if extrapolation_jacobian == :L && correction_jacobian == :L
+        # IOUP + EKL is currently already covered by IOUP + EK0
+        continue
+    end
+    if extrapolation_jacobian == :F && correction_jacobian == :L
+        # Doing Rosenbrock but operating on an approximat Jacobian doesn't really make sense
+        continue
+    end
+
     alg, _prob = if correction_jacobian == :Z
         EK0, prob
     elseif correction_jacobian == :L
@@ -96,7 +106,7 @@ for nu in NUS, extrapolation_jacobian in (:Z, :L, :F), correction_jacobian in (:
         Dict(:Z => "IWP($nu)", :L => "IOUP($nu)", :F => "IOUP($nu)+RB")[extrapolation_jacobian]
 
     str = "$alg_str+$prior_str"
-    @info "start $str"
-    results[str] = wp_fun(prob, alg(prior=prior, diffusionmodel=DM, smooth=!FINAL))
+    results[str] = wp_fun(prob, alg(prior=prior, diffusionmodel=DM, smooth=!FINAL),
+                          name=str)
     save(joinpath(DIR, "sir_results.jld"), "results", results)
 end

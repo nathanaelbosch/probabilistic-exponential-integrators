@@ -101,7 +101,7 @@ prob_rd_1d_zeldovich_frank_kamenetskii(; N, β=1, kwargs...) = begin
     return prob_rd_1d(; u0, reaction!, kwargs...)
 end
 
-prob_rd_1d_sir(; N=15, diffusion=0.5, β=0.3, γ=0.07, P=1000.0,
+prob_rd_1d_sir(; N=30, diffusion=1, β=0.3, γ=0.07, P=1000.0,
     tspan=(0.0, 70.0), dx=0.5, kwargs...) = begin
     reaction!(du, u) = begin
         S, dS = view(u, 1:N), view(du, 1:N)

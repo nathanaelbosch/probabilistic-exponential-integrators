@@ -13,7 +13,7 @@ data = load(joinpath(DIR, "sir_results.jld"))
 results = data["results"]
 
 # NU = results["NU"]
-NU = 1
+NU = 3
 
 x = :nf
 xlabel = String(x)
@@ -159,6 +159,6 @@ leg = Legend(
 colgap!(fig.layout, 5)
 # ylims!(ax, 1e-5, 1e5) # NU = 1
 # ylims!(ax, 1e-10, 1e5)  # NU = 2
-xlims!(ax_cal, 1e-12, 1e12)
+xlims!(ax_cal, 1e-10, 1e10)
 
 save("../bayes-exp-int/figures/sir_reaction_diffusion.pdf", fig, pt_per_unit=1)
