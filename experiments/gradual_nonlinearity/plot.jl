@@ -5,7 +5,7 @@ using OrdinaryDiffEq
 # using Plots
 using LaTeXStrings
 
-import BayesExpIntExperiments: alg_styles, C1, C2, Labels, PlotTheme
+import BayesExpIntExperiments: get_alg_style, C1, C2, get_label, PlotTheme
 
 # DIR = @__DIR__
 DIR = "experiments/gradual_nonlinearity"
@@ -20,8 +20,8 @@ algs = (
     # "Tsit5",
     # "BS3",
     "EK0+IWP($NU)",
-    "EK1+IWP($NU)",
     "EK0.5+IWP($NU)",
+    "EK1+IWP($NU)",
     "EK0+IOUP($NU)",
     "EK1+IOUP($NU)",
 )
@@ -60,9 +60,9 @@ for i in 1:length(bs)
         yscale=log10,
         yticklabelsvisible=i == 1,
         title=L"\dot{y} = - y + 10^{%$(Int(log10(b)))} \cdot y^2",
-        xlabel="N",
+        xlabel="Number of steps",
         # xlabel="nf",
-        ylabel=i == 1 ? "L2 error" : "",
+        ylabel=i == 1 ? "Error (L2)" : "",
     )
     push!(axes, ax)
     for alg in algs
@@ -73,9 +73,9 @@ for i in 1:length(bs)
             # [r[:nf] for r in wp],
             [r[:L2] for r in wp];
             label=alg,
-            alg_styles[alg]...,
-            color=(alg_styles[alg].color, 0.5),
-            markercolor=alg_styles[alg].color,
+            get_alg_style(alg)...,
+            color=(get_alg_style(alg).color, 0.5),
+            markercolor=get_alg_style(alg).color,
         )
         sclines[alg] = scl
     end
@@ -95,7 +95,7 @@ end
 leg = Legend(
     fig[:, end+1],
     [sclines[k] for k in algs],
-    [labels[k] for k in algs],
+    [get_label(k) for k in algs],
 )
 
 colgap!(fig.layout, 5)

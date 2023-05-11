@@ -13,7 +13,7 @@ data = load(joinpath(DIR, "workprecisiondata.jld"))
 results = data["results"]
 
 # NU = results["NU"]
-NU = 3
+NU = 2
 
 x = :nsteps
 xlabel = String(x)
@@ -27,8 +27,8 @@ algs = (
     # "Rosenbrock23",
     # "Rosenbrock32",
     "EK0+IWP($NU)",
+    "EKL+IWP($NU)",
     "EK1+IWP($NU)",
-    # "EKL+IWP($NU)",
     "EK0+IOUP($NU)",
     "EK1+IOUP($NU)",
     "EK0+IOUP($NU)+RB",
@@ -168,8 +168,8 @@ leg = Legend(
 colgap!(fig.layout, 5)
 # ylims!(ax, 1e-5, 1e5) # NU = 1
 # xlims!(ax, 2e-3, 2e0)  # NU = 2
-CairoMakie.ylims!(ax, 1e-11, 1e3)  # NU = 2
-CairoMakie.ylims!(ax_cal, 1e-11, 1e3)  # NU = 2
+# CairoMakie.ylims!(ax, 1e-11, 1e3)  # NU = 2
+# CairoMakie.ylims!(ax_cal, 1e-11, 1e3)  # NU = 2
 CairoMakie.xlims!(ax_cal, 1e-10, 1e10)  # NU = 2
 
 save("../bayes-exp-int/figures/reaction_diffusion.pdf", fig, pt_per_unit=1)

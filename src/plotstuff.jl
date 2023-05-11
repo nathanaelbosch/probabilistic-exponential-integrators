@@ -9,15 +9,21 @@ PlotTheme = Theme(
         titlesize=8,
         titlealign=:left,
         titlegap=1,
-        titlefont="Times New Roman"
+        titlefont="Times New Roman",
+        xlabelfont="Times",
+        ylabelfont="Times",
+        xlabelsize=8,
+        ylabelsize=8,
+        xticklabelsize=7,
+        yticklabelsize=7,
     ),
     Label=(;
         halign=:left,
         tellwidth=false,
-    #     # tellheight=false,
+        #     # tellheight=false,
         justification=:right,
         # padding=(12, 0, 1, 0),
-    #     # font="Times New Roman",
+        #     # font="Times New Roman",
     ),
     ScatterLines=(
         markersize=8,
@@ -26,10 +32,11 @@ PlotTheme = Theme(
     ),
     Legend=(;
         labelsize=8,
+        labelfont="Times",
         # patchlabelgap=-8,
         patchsize=(10, 10),
         framevisible=false,
-            rowgap=1,
+        rowgap=1,
     ),
 )
 
@@ -100,6 +107,7 @@ function get_label(alg_str)
     if occursin("EK", alg_str)
         match_result = match(r"(EK.*)\+(I\w+)\((\w+)\)", alg_str)
         ALG, PRIOR, NU = match_result
+        ALG == "EK0.5" && (ALG = "EKL")
         RB = occursin("+RB", alg_str) ? " (RB)" : ""
         # return L"\text{%$ALG & %$PRIOR(%$NU)%$RB}"
         return "$ALG & $PRIOR($NU)$RB"

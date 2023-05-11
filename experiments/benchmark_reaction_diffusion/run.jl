@@ -18,18 +18,18 @@ solve(prob, EK1(prior=IOUP(3, L)), adaptive=false, dt=1e-1);
 # @profview for _ in 1:100 solve(prob, EK1(prior=IOUP(3, L)), adaptive=false, dt=1e-1) end
 
 # Visualize this a bit
-import Plots
-anim = Plots.@animate for t in 0.0:0.1:prob.tspan[2]
-    Plots.plot(
-        ref_sol(t),
-        ylim=(0, 1),
-        label="",
-        title="t = $t",
-        ylabel="u(x, t)",
-        xlabel="x",
-    )
-end
-Plots.gif(anim, "1dreactiondiffusion.gif", fps=15)
+# import Plots
+# anim = Plots.@animate for t in 0.0:0.1:prob.tspan[2]
+#     Plots.plot(
+#         ref_sol(t),
+#         ylim=(0, 1),
+#         label="",
+#         title="t = $t",
+#         ylabel="u(x, t)",
+#         xlabel="x",
+#     )
+# end
+# Plots.gif(anim, "1dreactiondiffusion.gif", fps=15)
 
 DM = FixedDiffusion()
 
@@ -42,12 +42,14 @@ abstols = reltols = zero(dts)
 # reltols = 1.0 ./ 10.0 .^ (1:10)
 # dts = nothing
 
+FINAL = true
 wp_fun(prob, alg) = BEIE.MyWorkPrecision(
     prob, alg, abstols, reltols;
     appxsol=ref_sol,
-    timeseries_errors=true,
-    dense_errors=true,
+    timeseries_errors=!FINAL,
+    dense_errors=!FINAL,
     dts=dts,
+    dense=!FINAL,
 )
 
 results = Dict()
@@ -60,10 +62,14 @@ results["Rosenbrock23"] = wp_fun(prob, Rosenbrock23())
 results["Rosenbrock32"] = wp_fun(prob, Rosenbrock32())
 @info "Rosenbrock32 done"
 
-NUS = (1, 2, 3, 4)
+NUS = (
+    1,
+    2,
+    3,
+    # 4,
+)
 
 for nu in NUS, extrapolation_jacobian in (:Z, :L, :F), correction_jacobian in (:Z, :L, :F)
-
     alg, _prob = if correction_jacobian == :Z
         EK0, prob
     elseif correction_jacobian == :L
@@ -80,11 +86,12 @@ for nu in NUS, extrapolation_jacobian in (:Z, :L, :F), correction_jacobian in (:
         IOUP(nu, update_rate_parameter=true)
     end
 
-    alg_str = Dict(:Z=>"EK0", :L=>"EKL", :F=>"EK1")[correction_jacobian]
-    prior_str = Dict(:Z=>"IWP($nu)", :L=>"IOUP($nu)", :F=>"IOUP($nu)+RB")[extrapolation_jacobian]
+    alg_str = Dict(:Z => "EK0", :L => "EKL", :F => "EK1")[correction_jacobian]
+    prior_str =
+        Dict(:Z => "IWP($nu)", :L => "IOUP($nu)", :F => "IOUP($nu)+RB")[extrapolation_jacobian]
 
     str = "$alg_str+$prior_str"
     @info "start $str"
-    results[str] = wp_fun(prob, alg(prior=prior, diffusionmodel=DM))
+    results[str] = wp_fun(prob, alg(prior=prior, diffusionmodel=DM, smooth=!FINAL))
     save(joinpath(DIR, "workprecisiondata.jld"), "results", results)
 end
