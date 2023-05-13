@@ -6,7 +6,7 @@ using Distributions
 using LaTeXStrings
 
 import BayesExpIntExperiments as BEIE
-import BayesExpIntExperiments: C1, C2, get_label, PlotTheme, get_alg_style
+import BayesExpIntExperiments: C1, C2, get_label, PlotTheme, get_alg_style, LINEALPHA
 
 DIR = "experiments/benchmark_reaction_diffusion"
 data = load(joinpath(DIR, "burgers_results.jld"))
@@ -117,7 +117,7 @@ for alg in algs
         [r[y] for r in wp];
         label=alg,
         get_alg_style(alg)...,
-        color=(get_alg_style(alg).color, 0.5),
+        color=(get_alg_style(alg).color, LINEALPHA),
         markercolor=get_alg_style(alg).color,
     )
     sclines[alg] = scl
@@ -156,7 +156,7 @@ for alg in algs
         [r[y] for r in wp];
         label=alg,
         get_alg_style(alg)...,
-        color=(get_alg_style(alg).color, 0.5),
+        color=(get_alg_style(alg).color, LINEALPHA),
         markercolor=get_alg_style(alg).color,
     )
     sclines[alg] = scl

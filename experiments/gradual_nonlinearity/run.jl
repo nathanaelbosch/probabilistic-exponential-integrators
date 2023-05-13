@@ -33,7 +33,7 @@ function get_wps(b; abstols, reltols, dts, dm)
     p = (a=-1, b=b)
     prob = ODEProblem(f!, u0, tspan, p)
     prob_badjac = ODEProblem(ODEFunction(f!, jac=(J, u, p, t) -> (J .= p.a)), u0, tspan, p)
-    ref_sol = solve(prob, RadauIIA5(), abstol=1e-20, reltol=1e-20)
+    ref_sol = solve(remake(prob, u0=big.(prob.u0)), RadauIIA5(), abstol=1e-30, reltol=1e-30)
 
     wps = Dict()
 
@@ -59,15 +59,8 @@ end
 dts = 1.0 ./ 10.0 .^ (-1:1//4:1)
 abstols = reltols = zero(dts)
 dm = FixedDiffusion()
-wpss_fixed = Dict(
-    0.000001 => get_wps(0.000001; abstols, reltols, dts, dm),
-    0.00001 => get_wps(0.00001; abstols, reltols, dts, dm),
-    0.0001 => get_wps(0.0001; abstols, reltols, dts, dm),
-    0.001 => get_wps(0.001; abstols, reltols, dts, dm),
-    0.01 => get_wps(0.01; abstols, reltols, dts, dm),
-    0.1 => get_wps(0.1; abstols, reltols, dts, dm),
-    0.9 => get_wps(0.9; abstols, reltols, dts, dm),
-)
+bs = (1e-10, 1e-9, 1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1 - 1e-1, 1 - 1e-2)
+wpss_fixed = Dict((b => get_wps(b; abstols, reltols, dts, dm)) for b in bs)
 
 # dm = DynamicDiffusion()
 # abstols = 1.0 ./ 10.0 .^ (4:13)
@@ -82,6 +75,6 @@ wpss_fixed = Dict(
 # )
 
 save(joinpath(DIR, "workprecisiondata.jld"),
-     "wpss_fixed", wpss_fixed,
-     "wpss_adaptive", wpss_adaptive
-     )
+    "wpss_fixed", wpss_fixed,
+    # "wpss_adaptive", wpss_adaptive
+)

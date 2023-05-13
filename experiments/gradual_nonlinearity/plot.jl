@@ -14,7 +14,7 @@ data = load(joinpath(DIR, "workprecisiondata.jld"))
 steps = "fixed"
 wpss = data["wpss_$steps"]
 
-bs = (0.00001, 0.001, 0.1)
+bs = (1e-10, 1e-7, 1e-4, 1e-1)
 NU = 2
 algs = (
     # "Tsit5",
@@ -28,7 +28,7 @@ algs = (
 
 set_theme!(
     merge(
-        Theme(),
+        Theme(Axis=(;yticks=([1e0, 1e-10], ["10⁰", "10⁻¹⁰"]))),
         PlotTheme,
         Theme(
             TuePlots.SETTINGS[:NEURIPS];
@@ -59,6 +59,7 @@ for i in 1:length(bs)
         xscale=log10,
         yscale=log10,
         yticklabelsvisible=i == 1,
+        # title=L"\dot{y} = - y + %$b \cdot y^2",
         title=L"\dot{y} = - y + 10^{%$(Int(log10(b)))} \cdot y^2",
         xlabel="Number of steps",
         # xlabel="nf",
@@ -83,7 +84,7 @@ end
 linkyaxes!(axes...)
 linkxaxes!(axes...)
 if steps == "fixed"
-    ylims!.(axes, Ref((1e-13, 1e1)))
+    ylims!.(axes, Ref((1e-18, 1e3)))
 end
 
 # for i in 1:length(bs)
@@ -112,7 +113,7 @@ for (i, b) in enumerate(bs)
     sol = solve(prob, Rodas5P())
 
     ax = Axis(
-        fig[1, i], width=Relative(0.4), height=Relative(0.3),
+        fig[1, i], width=Relative(0.4), height=Relative(0.25),
         # halign=0.95, valign=0.95,
         halign=0.05, valign=0.05,
         backgroundcolor=:white,
