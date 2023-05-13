@@ -58,10 +58,11 @@ diffusionmodel = FixedDiffusion()
 dt_ek0 = 0.01
 dt_ek1 = 0.25
 dt_ek0_ioup = 0.5
-sol_ek0 = solve(prob, EK0(; order, diffusionmodel); adaptive=false, dt=dt_ek0);
-sol_ek1 = solve(prob, EK1(; order, diffusionmodel); adaptive=false, dt=dt_ek1);
-sol_ek0_ioup = solve(prob, EK0(; prior=IOUP(order, L), diffusionmodel);
-    adaptive=false, dt=dt_ek1);
+SMOOTH = true
+sol_ek0 = solve(prob, EK0(; order, diffusionmodel, smooth=SMOOTH); adaptive=false, dt=dt_ek0, dense=SMOOTH);
+sol_ek1 = solve(prob, EK1(; order, diffusionmodel, smooth=SMOOTH); adaptive=false, dt=dt_ek1, dense=SMOOTH);
+sol_ek0_ioup = solve(prob, EK0(; prior=IOUP(order, L), diffusionmodel, smooth=SMOOTH);
+    adaptive=false, dt=dt_ek1, dense=SMOOTH);
 
 # Plots.plot(ref_sol, ylims=(0, 1), color=:black, linestyle=:dash, label="ref")
 # p1 = Plots.plot!(sol_ek0,
@@ -141,8 +142,8 @@ ax_ek0 = Axis(
     # xticklabelsvisible = false,
     title=rich(rich("a. ", font="Times New Roman Bold"),
         rich("Explicit method (not A-stable)", font="Times New Roman")),
-    xlabel="t",
-    ylabel="y(t)",
+    xlabel=L"t",
+    ylabel=L"y(t)",
 )
 ax_ek1 = Axis(
     fig[1, 2];
@@ -151,14 +152,14 @@ ax_ek1 = Axis(
     yticklabelsvisible=false,
     title=rich(rich("b. ", font="Times New Roman Bold"),
         rich("Semi-implicit method (A-stable)", font="Times New Roman")),
-    xlabel="t",
+    xlabel=L"t",
 )
 ax_ek0_ioup = Axis(
     fig[1, 3]; yticks=[0, 1], xticks=[0, tspan[2]],
     yticklabelsvisible=false,
     title=rich(rich("c. ", font="Times New Roman Bold"),
         rich("Exponential integrator (L-stable)", font="Times New Roman")),
-    xlabel="t",
+    xlabel=L"t",
 )
 # colgap!(fig.layout, 10)
 
@@ -169,8 +170,7 @@ for (i, (ax, sol)) in
     enumerate(((ax_ek0, sol_ek0), (ax_ek1, sol_ek1), (ax_ek0_ioup, sol_ek0_ioup)))
     series!(ax, ref_sol.t, vecvec2mat(ref_sol.u), solid_color=:black, linestyle=:dash)
     xlims!(ax, tspan)
-    # xlims!(ax, -0.2, 3.2)
-    ylims!(ax, -0.2, 1.2)
+    ylims!(ax, -0.1, 1.2)
     # us = sol(dense_ts).u
     us = sol.pu
     # means = us.μ |> vecvec2mat

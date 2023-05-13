@@ -50,11 +50,13 @@ set_theme!(
 
 α = 0.2
 L_undamped = [0 -2π; 2π 0]
-L = L_undamped - Diagonal([α, α])
-f!(du, u, p, t) = mul!(du, L, u)
+L_damped = L_undamped - Diagonal([α, α])
+f!(du, u, p, t) = mul!(du, L_damped, u)
+L = L_damped
 u0 = [1.0; 1.0]
-tspan = (0.0, 2.0)
+tspan = (0.0, 5.0)
 prob = ODEProblem{true,SciMLBase.FullSpecialize()}(f!, u0, tspan)
+sol = solve(prob, Tsit5(), abstol=1e-6, reltol=1e-6, saveat=0.01)
 
 d, q = 2, 1
 # κ² = 1e0
@@ -105,8 +107,8 @@ ax_iwp = Axis(
     # xticklabelsvisible = false,
     title=rich(rich("a. ", font="Times New Roman Bold"),
         rich("Integrated Wiener process", font="Times New Roman")),
-    xlabel="t",
-    ylabel="y(t)",
+    xlabel=L"t",
+    ylabel=L"y(t)",
 )
 ax_ioup = Axis(
     fig[1, 2];
@@ -115,14 +117,14 @@ ax_ioup = Axis(
     yticklabelsvisible=false,
     title=rich(rich("b. ", font="Times New Roman Bold"),
         rich("Integrated Ornstein-Uhlenbeck", font="Times New Roman")),
-    xlabel="t",
+    xlabel=L"t",
 )
 ax_ioup_init = Axis(
     fig[1, 3]; yticks=[-3, 0, 3], xticks=[0, T],
     yticklabelsvisible=false,
     title=rich(rich("c. ", font="Times New Roman Bold"),
         rich("IOUP + initial value", font="Times New Roman")),
-    xlabel="t",
+    xlabel=L"t",
 )
 # rowgap!(fig.layout, 10)
 # colgap!(fig.layout, 10)
@@ -172,6 +174,10 @@ for _ in 1:M
     ys_ioup = simulate(A, Q, N; randinit=false)
     series!(ax_ioup_init, ts, ys_ioup', solid_color=(COLORS[3], ALPHA))
 end
+
+lines!(ax_iwp, sol.t, Array(sol)[1, :], color=(:black, 0.8), linestyle=:solid)
+lines!(ax_ioup, sol.t, Array(sol)[1, :], color=(:black, 0.8), linestyle=:solid)
+lines!(ax_ioup_init, sol.t, Array(sol)[1, :], color=(:black, 0.8), linestyle=:solid)
 
 xlims!(ax_iwp, (0, T))
 xlims!(ax_ioup, (0, T))

@@ -54,7 +54,8 @@ set_theme!(
             figsize=true,
             thinned=true,
             # width_coeff=0.35,
-            nrows=1, ncols=2,
+            # nrows=1, ncols=2,
+            nrows=1.1, ncols=3,
             # subplot_height_to_width_ratio=1/TuePlots.GOLDEN_RATIO,
             # subplot_height_to_width_ratio=1,
         ),
@@ -69,8 +70,9 @@ prob, L = BEIE.prob_rd_1d_fisher()
 d = length(prob.u0)
 ref_sol = solve(prob, RadauIIA5(), abstol=1e-20, reltol=1e-20)
 Array(ref_sol)
+gl = fig[1, 1] = GridLayout()
 ax_sol = Axis(
-    fig[1, 1],
+    gl[1, 1],
     xticks=([0.5, length(prob.u0) + 0.5], ["0", "1"]),
     # xticksvisible=false,
     # xticklabelsvisible=false,
@@ -81,7 +83,7 @@ ax_sol = Axis(
         # rich("Reaction-diffusion model", font="Times New Roman")),
         rich("ODE solution", font="Times New Roman")),
 )
-CairoMakie.heatmap!(
+hm = CairoMakie.heatmap!(
     ax_sol,
     1:length(ref_sol.u[1]),
     ref_sol.t,
@@ -91,6 +93,8 @@ CairoMakie.heatmap!(
     colormap=:thermal, colorrange=(0, 1),
     fxaa=false,
 )
+cb = Colorbar(gl[1,2], hm, size=3)
+colgap!(gl, 3)
 
 # Work-precision
 sclines = Dict()

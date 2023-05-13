@@ -16,7 +16,8 @@ results = data["results"]
 NU = 2
 
 x = :nsteps
-xlabel = x == :nsteps ? "Number of steps" :
+xlabel =
+    x == :nsteps ? "Number of steps" :
     x == :nf ? "Number of function evaluations" :
     String(x)
 y = :final
@@ -57,7 +58,7 @@ set_theme!(
             figsize=true,
             thinned=true,
             # width_coeff=0.35,
-            nrows=1, ncols=2,
+            nrows=1.1, ncols=3,
             # subplot_height_to_width_ratio=1/TuePlots.GOLDEN_RATIO,
             # subplot_height_to_width_ratio=1,
         ),
@@ -71,8 +72,9 @@ prob, L = BEIE.prob_burgers()
 d = length(prob.u0)
 ref_sol = solve(prob, RadauIIA5(), abstol=1e-20, reltol=1e-20)
 Array(ref_sol)
+gl = fig[1, 1] = GridLayout()
 ax_sol = Axis(
-    fig[1, 1],
+    gl[1, 1],
     xticks=([0.5, length(prob.u0) + 0.5], ["0", "1"]),
     # xticksvisible=false,
     # xticklabelsvisible=false,
@@ -83,7 +85,7 @@ ax_sol = Axis(
         # rich("Reaction-diffusion model", font="Times New Roman")),
         rich("ODE solution", font="Times New Roman")),
 )
-CairoMakie.heatmap!(
+hm = CairoMakie.heatmap!(
     ax_sol,
     1:length(ref_sol.u[1]),
     ref_sol.t,
@@ -94,6 +96,9 @@ CairoMakie.heatmap!(
     colormap=:balance, colorrange=(-0.5, 0.5),
     fxaa=false,
 )
+# Add colorbar
+cb = Colorbar(gl[1,2], hm, size=3)
+colgap!(gl, 3)
 
 # Work-precision
 sclines = Dict()
@@ -176,6 +181,6 @@ colgap!(fig.layout, 5)
 # CairoMakie.xlims!(ax, 1e0, 1e3)  # NU = 2
 # CairoMakie.ylims!(ax, 1e-11, 1e3)  # NU = 2
 # CairoMakie.ylims!(ax_cal, 1e-11, 1e3)  # NU = 2
-CairoMakie.xlims!(ax_cal, 1e-10, 1e20)  # NU = 2
+CairoMakie.xlims!(ax_cal, 1e-8, 1e20)  # NU = 2
 
 save("../bayes-exp-int/figures/burgers.pdf", fig, pt_per_unit=1)

@@ -1,4 +1,4 @@
-LINEALPHA = 0.9
+LINEALPHA = 0.5
 
 PlotTheme = Theme(
     # Axis=(
@@ -7,7 +7,7 @@ PlotTheme = Theme(
     # titlesize=8
     # ),
     colgap = 10,
-    figure_padding = (0, 5, 0, 0),
+    figure_padding = (1, 5, 1, 0),
     Axis=(
         titlesize=8,
         titlealign=:left,
@@ -29,6 +29,8 @@ PlotTheme = Theme(
         # rightspinevisible=false,
         # xtrimspine=true,
         # ytrimspine=true,
+        # xticklabelpad=1,
+        # yticklabelpad=2,
     ),
     Label=(;
         halign=:left,
@@ -54,6 +56,12 @@ PlotTheme = Theme(
         framevisible=false,
         rowgap=1,
     ),
+    Colorbar = (
+        ;
+        spinewidth=0.5,
+        tickwidth=0.5,
+        ticksize=2,
+    )
 )
 
 C1, C2, C3 = Makie.wong_colors()[1:3]
