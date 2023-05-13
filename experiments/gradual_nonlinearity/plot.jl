@@ -37,14 +37,16 @@ set_theme!(
             figsize=true,
             thinned=true,
             # width_coeff=0.35,
-            nrows=1, ncols=2,
+            nrows=1, ncols=3,
             # subplot_height_to_width_ratio=1/TuePlots.GOLDEN_RATIO,
             # subplot_height_to_width_ratio=1,
         ),
     ),
 )
 
-fig = Figure()
+fig = Figure(
+    figure_padding=(0, 8, 0, 0),
+)
 axes = []
 sclines = Dict()
 for i in 1:length(bs)

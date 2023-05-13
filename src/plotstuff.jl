@@ -40,10 +40,10 @@ PlotTheme = Theme(
     ),
     ScatterLines=(
         ;
-        markersize=5,
-        linewidth=1,
-        # markersize=8,
-        # linewidth=3,
+        # markersize=5,
+        # linewidth=1,
+        markersize=8,
+        linewidth=3,
         strokewidth=0.2,
     ),
     Legend=(;
