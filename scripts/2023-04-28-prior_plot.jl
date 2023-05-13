@@ -104,7 +104,9 @@ ax_iwp = Axis(
     xticks=[0, T],
     # xticklabelsvisible = false,
     title=rich(rich("a. ", font="Times New Roman Bold"),
-               rich("Integrated Wiener process", font="Times New Roman")),
+        rich("Integrated Wiener process", font="Times New Roman")),
+    xlabel="t",
+    ylabel="y(t)",
 )
 ax_ioup = Axis(
     fig[1, 2];
@@ -112,16 +114,18 @@ ax_ioup = Axis(
     xticks=[0, T],
     yticklabelsvisible=false,
     title=rich(rich("b. ", font="Times New Roman Bold"),
-               rich("Integrated Ornstein-Uhlenbeck", font="Times New Roman")),
+        rich("Integrated Ornstein-Uhlenbeck", font="Times New Roman")),
+    xlabel="t",
 )
 ax_ioup_init = Axis(
     fig[1, 3]; yticks=[-3, 0, 3], xticks=[0, T],
     yticklabelsvisible=false,
     title=rich(rich("c. ", font="Times New Roman Bold"),
-               rich("IOUP + initial value", font="Times New Roman")),
+        rich("IOUP + initial value", font="Times New Roman")),
+    xlabel="t",
 )
 # rowgap!(fig.layout, 10)
-colgap!(fig.layout, 10)
+# colgap!(fig.layout, 10)
 
 A, Q = ProbNumDiffEq.discretize(ProbNumDiffEq.IWP(d, q), float(dt))
 Q = Matrix(Q)

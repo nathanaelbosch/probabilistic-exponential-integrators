@@ -2,7 +2,7 @@
 This script reproduces the plots from
 https://math.stackexchange.com/questions/1466978/advantage-of-l-stability-compared-to-a-stability
 =#
-using ProbNumDiffEq, DiffEqCallbacks, OrdinaryDiffEq
+using ProbNumDiffEq, DiffEqCallbacks, OrdinaryDiffEq, LinearAlgebra
 import Plots
 Plots.theme(:default;
     markersize=1,
@@ -141,6 +141,8 @@ ax_ek0 = Axis(
     # xticklabelsvisible = false,
     title=rich(rich("a. ", font="Times New Roman Bold"),
         rich("Explicit method (not A-stable)", font="Times New Roman")),
+    xlabel="t",
+    ylabel="y(t)",
 )
 ax_ek1 = Axis(
     fig[1, 2];
@@ -149,14 +151,16 @@ ax_ek1 = Axis(
     yticklabelsvisible=false,
     title=rich(rich("b. ", font="Times New Roman Bold"),
         rich("Semi-implicit method (A-stable)", font="Times New Roman")),
+    xlabel="t",
 )
 ax_ek0_ioup = Axis(
     fig[1, 3]; yticks=[0, 1], xticks=[0, tspan[2]],
     yticklabelsvisible=false,
     title=rich(rich("c. ", font="Times New Roman Bold"),
         rich("Exponential integrator (L-stable)", font="Times New Roman")),
+    xlabel="t",
 )
-colgap!(fig.layout, 10)
+# colgap!(fig.layout, 10)
 
 dense_ts = tspan[1]:0.01:tspan[2]
 vecvec2mat(vv) = hcat(vv...)
@@ -165,7 +169,8 @@ for (i, (ax, sol)) in
     enumerate(((ax_ek0, sol_ek0), (ax_ek1, sol_ek1), (ax_ek0_ioup, sol_ek0_ioup)))
     series!(ax, ref_sol.t, vecvec2mat(ref_sol.u), solid_color=:black, linestyle=:dash)
     xlims!(ax, tspan)
-    ylims!(ax, 0, 1)
+    # xlims!(ax, -0.2, 3.2)
+    ylims!(ax, -0.2, 1.2)
     # us = sol(dense_ts).u
     us = sol.pu
     # means = us.μ |> vecvec2mat
@@ -178,6 +183,8 @@ for (i, (ax, sol)) in
             sol.t,
             means[j, :] - 1.96stddevs[j, :],
             means[j, :] + 1.96stddevs[j, :],
+            # max.(means[j, :] - 1.96stddevs[j, :], 0 .+ zero(means[j, :])),
+            # min.(means[j, :] + 1.96stddevs[j, :], 1 .+ zero(means[j, :])),
             color=(COLORS[i], 0.25),
         )
     end
@@ -190,4 +197,5 @@ text!(ax_ek1, 0, 0, text=L"dt=%$dt_ek1",
 text!(ax_ek0_ioup, 0, 0, text=L"dt=%$dt_ek1",
     fontsize=8, align=(:left, :bottom), offset=(10, 1.5))
 
+trim!(fig.layout)
 save("../bayes-exp-int/figures/stability_comparison.pdf", fig, pt_per_unit=1)

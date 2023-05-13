@@ -37,7 +37,7 @@ set_theme!(
             figsize=true,
             thinned=true,
             # width_coeff=0.35,
-            nrows=2, ncols=4,
+            nrows=1, ncols=2,
             # subplot_height_to_width_ratio=1/TuePlots.GOLDEN_RATIO,
             # subplot_height_to_width_ratio=1,
         ),

@@ -6,6 +6,8 @@ PlotTheme = Theme(
     # ylabelsize=8,
     # titlesize=8
     # ),
+    colgap = 10,
+    figure_padding = (0, 5, 0, 0),
     Axis=(
         titlesize=8,
         titlealign=:left,
@@ -17,6 +19,16 @@ PlotTheme = Theme(
         ylabelsize=8,
         xticklabelsize=7,
         yticklabelsize=7,
+        xlabelpadding=0,
+        ylabelpadding=0,
+        topspinevisible=true,
+        rightspinevisible=true,
+        xtrimspine=false,
+        ytrimspine=false,
+        # topspinevisible=false,
+        # rightspinevisible=false,
+        # xtrimspine=true,
+        # ytrimspine=true,
     ),
     Label=(;
         halign=:left,
