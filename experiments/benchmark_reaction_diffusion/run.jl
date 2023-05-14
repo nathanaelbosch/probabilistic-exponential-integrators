@@ -57,14 +57,14 @@ wp_fun(prob, alg; kwargs...) = BEIE.MyWorkPrecision(
 )
 
 results = Dict()
-# results["Tsit5"] = wp_fun(prob, Tsit5())
-# @info "Tsit5 done"
-# results["BS3"] = wp_fun(prob, BS3())
-# @info "BS3 done"
-# results["Rosenbrock23"] = wp_fun(prob, Rosenbrock23())
-# @info "Rosenbrock23 done"
-# results["Rosenbrock32"] = wp_fun(prob, Rosenbrock32())
-# @info "Rosenbrock32 done"
+results["Tsit5"] = wp_fun(prob, Tsit5())
+@info "Tsit5 done"
+results["BS3"] = wp_fun(prob, BS3())
+@info "BS3 done"
+results["Rosenbrock23"] = wp_fun(prob, Rosenbrock23())
+@info "Rosenbrock23 done"
+results["Rosenbrock32"] = wp_fun(prob, Rosenbrock32())
+@info "Rosenbrock32 done"
 
 NUS = (
     1,
@@ -106,6 +106,6 @@ for nu in NUS, extrapolation_jacobian in (:Z, :L, :F), correction_jacobian in (:
     str = "$alg_str+$prior_str"
     # @info "start $str"
     results[str] = wp_fun(
-        prob, alg(prior=prior, diffusionmodel=DM, smooth=!FINAL), name=str)
+        _prob, alg(prior=prior, diffusionmodel=DM, smooth=!FINAL), name=str)
     save(joinpath(DIR, "workprecisiondata.jld"), "results", results)
 end

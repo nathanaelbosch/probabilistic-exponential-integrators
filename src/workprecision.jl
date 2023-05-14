@@ -44,7 +44,8 @@ function MyWorkPrecision(
                     abstol=atol,
                     reltol=rtol,
                     adaptive=false,
-                    tstops=prob.tspan[1]:dts[i]:prob.tspan[2],
+                    # tstops=prob.tspan[1]:dts[i]:prob.tspan[2],
+                    dt=dts[i],
                     args...;
                     kwargs...,
                 )

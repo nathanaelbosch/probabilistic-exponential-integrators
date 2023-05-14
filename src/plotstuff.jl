@@ -1,5 +1,6 @@
-LINEALPHA = 0.5
+LINEALPHA = 0.4
 
+MARKERSIZE, LINEWIDTH = 8, 3
 PlotTheme = Theme(
     # Axis=(
     # xlabelsize=8,
@@ -29,8 +30,8 @@ PlotTheme = Theme(
         # rightspinevisible=false,
         # xtrimspine=true,
         # ytrimspine=true,
-        # xticklabelpad=1,
-        # yticklabelpad=2,
+        xticklabelpad=0,
+        yticklabelpad=2,
     ),
     Label=(;
         halign=:left,
@@ -44,8 +45,8 @@ PlotTheme = Theme(
         ;
         # markersize=5,
         # linewidth=1,
-        markersize=8,
-        linewidth=3,
+        markersize=MARKERSIZE,
+        linewidth=LINEWIDTH,
         strokewidth=0.2,
     ),
     Legend=(;
@@ -64,6 +65,7 @@ PlotTheme = Theme(
     )
 )
 
+C = Makie.wong_colors()
 C1, C2, C3 = Makie.wong_colors()[1:3]
 _alg_styles = Dict(
     "Tsit5" => (
@@ -101,7 +103,12 @@ _alg_styles = Dict(
         # linestyle=:dot,
         marker=:hexagon,
     ),
-    "EKL+IWP" => (color=C1, marker=:hexagon),
+    "EKL+IWP" => (
+        color=C[4],
+        marker=:hexagon,
+        # markersize=MARKERSIZE-3,
+        # linewidth=LINEWIDTH-2,
+    ),
     "EK0+IOUP" => (
         color=C2,
         # linestyle=:solid,

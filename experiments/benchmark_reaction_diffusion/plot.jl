@@ -6,7 +6,7 @@ using Distributions
 using LaTeXStrings
 
 import BayesExpIntExperiments as BEIE
-import BayesExpIntExperiments: C1, C2, get_label, PlotTheme, get_alg_style
+import BayesExpIntExperiments: get_label, PlotTheme, get_alg_style, LINEALPHA
 
 DIR = "experiments/benchmark_reaction_diffusion"
 data = load(joinpath(DIR, "workprecisiondata.jld"))
@@ -15,8 +15,12 @@ results = data["results"]
 # NU = results["NU"]
 NU = 2
 
-x = :nsteps
-xlabel = x == :nsteps ? "Number of steps" : String(x)
+x = :dt
+xlabel =
+    x == :nsteps ? "Number of steps" :
+    x == :nf ? "Number of function evaluations" :
+    x == :dt ? "Step size" :
+    String(x)
 y = :final
 ylabel = "Final error"
 
@@ -26,11 +30,11 @@ algs = (
     # "Rosenbrock23",
     # "Rosenbrock32",
     "EK0+IWP($NU)",
-    "EKL+IWP($NU)",
     "EK1+IWP($NU)",
+    "EKL+IWP($NU)",
     "EK0+IOUP($NU)",
-    "EK1+IOUP($NU)",
-    "EK0+IOUP($NU)+RB",
+    # "EK1+IOUP($NU)",
+    # "EK0+IOUP($NU)+RB",
     "EK1+IOUP($NU)+RB",
 )
 
@@ -40,9 +44,11 @@ set_theme!(
             Axis=(
                 titlesize=7,
                 xticks=LogTicks(WilkinsonTicks(3)),
-                yticks=LogTicks(WilkinsonTicks(3)),
+                yticks=LogTicks(WilkinsonTicks(10)),
                 xlabelsize=7,
                 ylabelsize=7,
+                xticklabelsize=7,
+                yticklabelsize=7,
             ),
             Legend=(; labelsize=7),
         ),
@@ -74,22 +80,17 @@ gl = fig[1, 1] = GridLayout()
 ax_sol = Axis(
     gl[1, 1],
     xticks=([0.5, length(prob.u0) + 0.5], ["0", "1"]),
-    # xticksvisible=false,
-    # xticklabelsvisible=false,
     yticks=[prob.tspan[1], prob.tspan[2]],
     xlabel="Space [x]",
     ylabel="Time [t]",
     title=rich(rich("a. ", font="Times New Roman Bold"),
-        # rich("Reaction-diffusion model", font="Times New Roman")),
-        rich("ODE solution", font="Times New Roman")),
+               rich("ODE solution", font="Times New Roman")),
 )
 hm = CairoMakie.heatmap!(
     ax_sol,
     1:length(ref_sol.u[1]),
     ref_sol.t,
     Array(ref_sol);
-    # log.(ref_sol.t[2:end]),
-    # Array(ref_sol)[:, 2:end];
     colormap=:thermal, colorrange=(0, 1),
     fxaa=false,
 )
@@ -109,7 +110,7 @@ ax = Axis(
         rich("Work-precision diagram", font="Times")),
 )
 for alg in algs
-    wp = results[alg][2:end]
+    wp = results[alg]
     scl = scatterlines!(
         ax,
         x == :nsteps ?
@@ -118,7 +119,7 @@ for alg in algs
         [r[y] for r in wp];
         label=alg,
         get_alg_style(alg)...,
-        color=(get_alg_style(alg).color, 0.5),
+        color=(get_alg_style(alg).color, LINEALPHA),
         markercolor=get_alg_style(alg).color,
     )
     sclines[alg] = scl
@@ -133,37 +134,24 @@ ax_cal = Axis(
     title=rich(rich("c. ", font="Times Bold"),
         rich("Uncertainty calibration", font="Times")),
 )
-# dist = Chisq(length(prob.u0))
-vlines!(
-    ax_cal,
-    # [mean(dist)],
-    [1],
-    color=:gray, linestyle=:dash,
-    linewidth=1,
-)
-# 99% confidence interval
-# ql, qr = quantile(dist, [0.005, 0.995])
-# vlines!(
-#     ax_cal,
-#     [ql, qr],
-#     color=:black, linestyle=:dash,
-#     linewidth=0.5,
-# )
+vlines!(ax_cal, [1], color=:gray, linestyle=:dash, linewidth=1)
 for alg in algs
-    wp = results[alg][2:end]
+    wp = results[alg]
+    if !(:chi2_final in keys(wp[1]))
+        continue
+    end
     scl = scatterlines!(
         ax_cal,
         [r[:chi2_final] / d for r in wp],
         [r[y] for r in wp];
         label=alg,
         get_alg_style(alg)...,
-        color=(get_alg_style(alg).color, 0.5),
+        color=(get_alg_style(alg).color, LINEALPHA),
         markercolor=get_alg_style(alg).color,
     )
     sclines[alg] = scl
 end
 
-# axislegend(ax)
 leg = Legend(
     fig[:, end+1],
     [sclines[k] for k in algs],
@@ -171,12 +159,13 @@ leg = Legend(
     labelfont="Times",
 )
 
-colgap!(fig.layout, 5)
-# ylims!(ax, 1e-5, 1e5) # NU = 1
-# xlims!(ax, 2e-3, 2e0)  # NU = 2
-CairoMakie.ylims!(ax, nothing, 1e5)  # NU = 2
-CairoMakie.ylims!(ax_cal, nothing, 1e5)  # NU = 2
-CairoMakie.xlims!(ax_cal, 1e-10, 1e10)  # NU = 2
-(x == :nsteps) && CairoMakie.xlims!(ax, 1e0, nothing)  # NU = 2
+colgap!(fig.layout, 1, 5)
+colgap!(fig.layout, 2, 3)
+colgap!(fig.layout, 3, 0)
+CairoMakie.ylims!(ax, nothing, 1e5)
+CairoMakie.ylims!(ax_cal, nothing, 1e5)
+linkyaxes!(ax, ax_cal)
+CairoMakie.xlims!(ax_cal, 1e-6, 1e7)
+(x == :nsteps) && CairoMakie.xlims!(ax, 1e0, nothing)
 
 save("../bayes-exp-int/figures/reaction_diffusion.pdf", fig, pt_per_unit=1)

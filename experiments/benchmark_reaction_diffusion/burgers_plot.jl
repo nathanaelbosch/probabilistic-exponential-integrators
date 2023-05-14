@@ -15,10 +15,11 @@ results = data["results"]
 # NU = results["NU"]
 NU = 2
 
-x = :nsteps
+x = :dt
 xlabel =
     x == :nsteps ? "Number of steps" :
     x == :nf ? "Number of function evaluations" :
+    x == :dt ? "Step size" :
     String(x)
 y = :final
 ylabel = String(y)
@@ -30,11 +31,11 @@ algs = (
     # "Rosenbrock23",
     # "Rosenbrock32",
     "EK0+IWP($NU)",
-    "EKL+IWP($NU)",
     "EK1+IWP($NU)",
+    "EKL+IWP($NU)",
     "EK0+IOUP($NU)",
-    "EK1+IOUP($NU)",
-    "EK0+IOUP($NU)+RB",
+    # "EK1+IOUP($NU)",
+    # "EK0+IOUP($NU)+RB",
     "EK1+IOUP($NU)+RB",
 )
 
@@ -47,6 +48,8 @@ set_theme!(
                 yticks=LogTicks(WilkinsonTicks(3)),
                 xlabelsize=7,
                 ylabelsize=7,
+                xticklabelsize=7,
+                yticklabelsize=7,
             ),
             Legend=(; labelsize=7),
         ),
@@ -76,13 +79,10 @@ gl = fig[1, 1] = GridLayout()
 ax_sol = Axis(
     gl[1, 1],
     xticks=([0.5, length(prob.u0) + 0.5], ["0", "1"]),
-    # xticksvisible=false,
-    # xticklabelsvisible=false,
     yticks=[prob.tspan[1], prob.tspan[2]],
     xlabel="Space [x]",
     ylabel="Time [t]",
     title=rich(rich("a. ", font="Times New Roman Bold"),
-        # rich("Reaction-diffusion model", font="Times New Roman")),
         rich("ODE solution", font="Times New Roman")),
 )
 hm = CairoMakie.heatmap!(
@@ -90,14 +90,11 @@ hm = CairoMakie.heatmap!(
     1:length(ref_sol.u[1]),
     ref_sol.t,
     Array(ref_sol);
-    # log.(ref_sol.t[2:end]),
-    # Array(ref_sol)[:, 2:end];
-    # colormap=:thermal, #colorrange=(0, 1),
     colormap=:balance, colorrange=(-0.5, 0.5),
     fxaa=false,
 )
 # Add colorbar
-cb = Colorbar(gl[1,2], hm, size=3)
+cb = Colorbar(gl[1, 2], hm, size=3)
 colgap!(gl, 3)
 
 # Work-precision
@@ -113,7 +110,7 @@ ax = Axis(
         rich("Work-precision diagram", font="Times")),
 )
 for alg in algs
-    wp = results[alg][2:end]
+    wp = results[alg]
     scl = scatterlines!(
         ax,
         x == :nsteps ?
@@ -137,24 +134,9 @@ ax_cal = Axis(
     title=rich(rich("c. ", font="Times Bold"),
         rich("Uncertainty calibration", font="Times")),
 )
-# dist = Chisq(length(prob.u0))
-vlines!(
-    ax_cal,
-    # [mean(dist)],
-    [1],
-    color=:gray, linestyle=:dash,
-    linewidth=1,
-)
-# 99% confidence interval
-# ql, qr = quantile(dist, [0.005, 0.995])
-# vlines!(
-#     ax_cal,
-#     [ql, qr],
-#     color=:black, linestyle=:dash,
-#     linewidth=0.5,
-# )
+vlines!(ax_cal, [1], color=:gray, linestyle=:dash, linewidth=1)
 for alg in algs
-    wp = results[alg][2:end]
+    wp = results[alg]
     scl = scatterlines!(
         ax_cal,
         [r[:chi2_final] / d for r in wp],
@@ -167,20 +149,12 @@ for alg in algs
     sclines[alg] = scl
 end
 
-# axislegend(ax)
-leg = Legend(
-    fig[:, end+1],
-    [sclines[k] for k in algs],
-    [get_label(k) for k in algs],
-    labelfont="Times",
-)
+leg = Legend(fig[:, end+1], [sclines[k] for k in algs], [get_label(k) for k in algs])
 
-colgap!(fig.layout, 5)
-# ylims!(ax, 1e-5, 1e5) # NU = 1
-# xlims!(ax, 2e-3, 2e0)  # NU = 2
-# CairoMakie.xlims!(ax, 1e0, 1e3)  # NU = 2
-# CairoMakie.ylims!(ax, 1e-11, 1e3)  # NU = 2
-# CairoMakie.ylims!(ax_cal, 1e-11, 1e3)  # NU = 2
-CairoMakie.xlims!(ax_cal, 1e-8, 1e20)  # NU = 2
+colgap!(fig.layout, 1, 5)
+colgap!(fig.layout, 2, 3)
+colgap!(fig.layout, 3, 0)
+linkyaxes!(ax, ax_cal)
+CairoMakie.xlims!(ax_cal, 1e-8, 1e20)
 
 save("../bayes-exp-int/figures/burgers.pdf", fig, pt_per_unit=1)
