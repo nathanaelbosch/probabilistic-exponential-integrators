@@ -106,7 +106,7 @@ _alg_styles = Dict(
     "EKL+IWP" => (
         color=C[4],
         marker=:hexagon,
-        # markersize=MARKERSIZE-3,
+        # markersize=MARKERSIZE-4,
         # linewidth=LINEWIDTH-2,
     ),
     "EK0+IOUP" => (
@@ -140,6 +140,7 @@ function get_label(alg_str)
         ALG, PRIOR, NU = match_result
         ALG == "EK0.5" && (ALG = "EKL")
         RB = occursin("+RB", alg_str) ? " (RB)" : ""
+        (ALG == "EK0" && PRIOR == "IOUP") && (ALG = "EKL")
         # return L"\text{%$ALG & %$PRIOR(%$NU)%$RB}"
         return "$ALG & $PRIOR($NU)$RB"
     else

@@ -49,7 +49,7 @@ function get_wps(b; abstols, reltols, dts, dm)
     wps["BS3"] = wp_fun(prob, BS3())
     wps["EK0+IWP($NU)"] = wp_fun(prob, EK0(prior=IWP(NU), diffusionmodel=dm))
     wps["EK1+IWP($NU)"] = wp_fun(prob, EK1(prior=IWP(NU), diffusionmodel=dm))
-    wps["EK0.5+IWP($NU)"] = wp_fun(prob_badjac, EK1(prior=IWP(NU), diffusionmodel=dm))
+    wps["EKL+IWP($NU)"] = wp_fun(prob_badjac, EK1(prior=IWP(NU), diffusionmodel=dm))
     wps["EK0+IOUP($NU)"] = wp_fun(prob, EK0(prior=IOUP(NU, prob.p.a), diffusionmodel=dm))
     wps["EK1+IOUP($NU)"] = wp_fun(prob, EK1(prior=IOUP(NU, prob.p.a), diffusionmodel=dm))
 

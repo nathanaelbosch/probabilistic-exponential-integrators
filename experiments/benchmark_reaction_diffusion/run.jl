@@ -54,7 +54,7 @@ wp_fun(prob, alg; kwargs...) = BEIE.MyWorkPrecision(
     verbose=false,
     save_everystep=!FINAL,
     kwargs...
-)
+        )
 
 results = Dict()
 results["Tsit5"] = wp_fun(prob, Tsit5())
@@ -67,45 +67,55 @@ results["Rosenbrock32"] = wp_fun(prob, Rosenbrock32())
 @info "Rosenbrock32 done"
 
 NUS = (
-    1,
+    # 1,
     2,
-    3,
+    # 3,
     # 4,
 )
 
-for nu in NUS, extrapolation_jacobian in (:Z, :L, :F), correction_jacobian in (:Z, :L, :F)
-    if extrapolation_jacobian == :L && correction_jacobian == :L
-        # IOUP + EKL is currently already covered by IOUP + EK0
-        continue
-    end
-    if extrapolation_jacobian == :F && correction_jacobian == :L
-        # Doing Rosenbrock but operating on an approximat Jacobian doesn't really make sense
-        continue
-    end
+for nu in NUS
+    for extrapolation_jacobian in (:Z, :L, :F), correction_jacobian in (:Z, :L, :F)
+        if extrapolation_jacobian == :L && correction_jacobian == :L
+            # IOUP + EKL is currently already covered by IOUP + EK0
+            continue
+        end
+        if extrapolation_jacobian == :F && correction_jacobian == :L
+            # Doing Rosenbrock but operating on an approximat Jacobian doesn't really make sense
+            continue
+        end
+        if extrapolation_jacobian == :L && correction_jacobian != :Z
+            # IOUP with global L just with EK0 for now (== EKL)
+            continue
+        end
+        if extrapolation_jacobian == :F && correction_jacobian != :F
+            # Rosenbrock just with full EK1 for now
+            continue
+        end
 
-    alg, _prob = if correction_jacobian == :Z
-        EK0, prob
-    elseif correction_jacobian == :L
-        EK1, prob_appxjac
-    elseif correction_jacobian == :F
-        EK1, prob
+        alg, _prob = if correction_jacobian == :Z
+            EK0, prob
+        elseif correction_jacobian == :L
+            EK1, prob_appxjac
+        elseif correction_jacobian == :F
+            EK1, prob
+        end
+
+        prior = if extrapolation_jacobian == :Z
+            IWP(nu)
+        elseif extrapolation_jacobian == :L
+            IOUP(nu, L)
+        elseif extrapolation_jacobian == :F
+            IOUP(nu, update_rate_parameter=true)
+        end
+
+        alg_str = Dict(:Z => "EK0", :L => "EKL", :F => "EK1")[correction_jacobian]
+        prior_str =
+            Dict(:Z => "IWP($nu)", :L => "IOUP($nu)", :F => "IOUP($nu)+RB")[extrapolation_jacobian]
+
+        str = "$alg_str+$prior_str"
+        # @info "start $str"
+        results[str] = wp_fun(
+            _prob, alg(prior=prior, diffusionmodel=DM, smooth=!FINAL), name=str)
     end
-
-    prior = if extrapolation_jacobian == :Z
-        IWP(nu)
-    elseif extrapolation_jacobian == :L
-        IOUP(nu, L)
-    elseif extrapolation_jacobian == :F
-        IOUP(nu, update_rate_parameter=true)
-    end
-
-    alg_str = Dict(:Z => "EK0", :L => "EKL", :F => "EK1")[correction_jacobian]
-    prior_str =
-        Dict(:Z => "IWP($nu)", :L => "IOUP($nu)", :F => "IOUP($nu)+RB")[extrapolation_jacobian]
-
-    str = "$alg_str+$prior_str"
-    # @info "start $str"
-    results[str] = wp_fun(
-        _prob, alg(prior=prior, diffusionmodel=DM, smooth=!FINAL), name=str)
     save(joinpath(DIR, "workprecisiondata.jld"), "results", results)
 end

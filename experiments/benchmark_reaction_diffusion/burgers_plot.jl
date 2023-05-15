@@ -16,11 +16,17 @@ results = data["results"]
 NU = 2
 
 x = :dt
+x2 = :nf
 xlabel =
     x == :nsteps ? "Number of steps" :
-    x == :nf ? "Number of function evaluations" :
+    x == :nf ? "Number of f evaluations" :
     x == :dt ? "Step size" :
     String(x)
+x2label =
+    x2 == :chi2_final ? "Normalised χ² statistic" :
+    x2 == :nf ? "Number of f evaluations" :
+    x2 == :time ? "Runtime [s]" :
+    String(x2)
 y = :final
 ylabel = String(y)
 ylabel = "Final error"
@@ -42,16 +48,17 @@ algs = (
 set_theme!(
     merge(
         Theme(
+            figure_padding=(-7, 12, 1, 0),
             Axis=(
-                titlesize=7,
+                # titlesize=7,
                 xticks=LogTicks(WilkinsonTicks(3)),
                 yticks=LogTicks(WilkinsonTicks(3)),
-                xlabelsize=7,
-                ylabelsize=7,
-                xticklabelsize=7,
-                yticklabelsize=7,
+                # xlabelsize=7,
+                # ylabelsize=7,
+                # xticklabelsize=7,
+                # yticklabelsize=7,
             ),
-            Legend=(; labelsize=7),
+            # Legend=(; labelsize=7),
         ),
         PlotTheme,
         Theme(
@@ -80,8 +87,8 @@ ax_sol = Axis(
     gl[1, 1],
     xticks=([0.5, length(prob.u0) + 0.5], ["0", "1"]),
     yticks=[prob.tspan[1], prob.tspan[2]],
-    xlabel="Space [x]",
-    ylabel="Time [t]",
+    xlabel="Space",
+    ylabel="Time",
     title=rich(rich("a. ", font="Times New Roman Bold"),
         rich("ODE solution", font="Times New Roman")),
 )
@@ -96,6 +103,7 @@ hm = CairoMakie.heatmap!(
 # Add colorbar
 cb = Colorbar(gl[1, 2], hm, size=3)
 colgap!(gl, 3)
+colsize!(gl, 1, Aspect(1, 1.0))
 
 # Work-precision
 sclines = Dict()
@@ -125,21 +133,24 @@ for alg in algs
     sclines[alg] = scl
 end
 
-ax_cal = Axis(
+ax2 = Axis(
     fig[1, 3];
     xscale=log10,
     yscale=log10,
     yticklabelsvisible=false,
-    xlabel="Normalised χ² statistic",
-    title=rich(rich("c. ", font="Times Bold"),
-        rich("Uncertainty calibration", font="Times")),
+    xlabel=x2label,
+    # title=rich(rich("c. ", font="Times Bold"),
+    #     rich("Uncertainty calibration", font="Times")),
 )
-vlines!(ax_cal, [1], color=:gray, linestyle=:dash, linewidth=1)
+(x2 == :chi2_final) && vlines!(ax2, [1], color=:gray, linestyle=:dash, linewidth=1)
 for alg in algs
     wp = results[alg]
+    if x2 == :chi2_final && !(:chi2_final in keys(wp[1]))
+        continue
+    end
     scl = scatterlines!(
-        ax_cal,
-        [r[:chi2_final] / d for r in wp],
+        ax2,
+        (x2 == :chi2_final) ? [r[x2] / d for r in wp] : [r[x2] for r in wp],
         [r[y] for r in wp];
         label=alg,
         get_alg_style(alg)...,
@@ -149,12 +160,13 @@ for alg in algs
     sclines[alg] = scl
 end
 
-leg = Legend(fig[:, end+1], [sclines[k] for k in algs], [get_label(k) for k in algs])
+leg = Legend(fig[:, end+1], [sclines[k] for k in algs], [get_label(k) for k in algs],
+    tellwidth=true)
 
 colgap!(fig.layout, 1, 5)
 colgap!(fig.layout, 2, 3)
 colgap!(fig.layout, 3, 0)
-linkyaxes!(ax, ax_cal)
-CairoMakie.xlims!(ax_cal, 1e-8, 1e20)
+linkyaxes!(ax, ax2)
+(x2 == :chi2_final) && CairoMakie.xlims!(ax2, 1e-8, 1e20)
 
 save("../bayes-exp-int/figures/burgers.pdf", fig, pt_per_unit=1)

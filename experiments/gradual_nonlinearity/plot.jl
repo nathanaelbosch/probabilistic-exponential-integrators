@@ -20,10 +20,10 @@ algs = (
     # "Tsit5",
     # "BS3",
     "EK0+IWP($NU)",
-    "EK0.5+IWP($NU)",
     "EK1+IWP($NU)",
+    "EKL+IWP($NU)",
     "EK0+IOUP($NU)",
-    "EK1+IOUP($NU)",
+    # "EK1+IOUP($NU)",
 )
 
 set_theme!(
