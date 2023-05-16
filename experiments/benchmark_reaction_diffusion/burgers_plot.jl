@@ -78,9 +78,10 @@ set_theme!(
 fig = Figure()
 
 # Solution plot
-prob, L = BEIE.prob_burgers()
+prob, L = BEIE.prob_burgers(; N=100)
+@info "plot.jl" length(prob.u0)
 d = length(prob.u0)
-ref_sol = solve(prob, RadauIIA5(), abstol=1e-20, reltol=1e-20)
+ref_sol = solve(prob, RadauIIA5(), abstol=1e-20, reltol=1e-20, saveat=0.01)
 Array(ref_sol)
 gl = fig[1, 1] = GridLayout()
 ax_sol = Axis(
@@ -118,7 +119,7 @@ ax = Axis(
         rich("Work-precision diagram", font="Times")),
 )
 for alg in algs
-    wp = results[alg]
+    wp = results[alg][2:end]
     scl = scatterlines!(
         ax,
         x == :nsteps ?
@@ -144,7 +145,7 @@ ax2 = Axis(
 )
 (x2 == :chi2_final) && vlines!(ax2, [1], color=:gray, linestyle=:dash, linewidth=1)
 for alg in algs
-    wp = results[alg]
+    wp = results[alg][2:end]
     if x2 == :chi2_final && !(:chi2_final in keys(wp[1]))
         continue
     end

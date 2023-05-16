@@ -35,7 +35,7 @@ solve(prob, EK1(prior=IOUP(3, L)), adaptive=false, dt=1e-1);
 DM = FixedDiffusion()
 
 # Fixed steps:
-dts = 1.0 ./ 10.0 .^ (-1//2:1//2:5//2)
+dts = 1.0 ./ 10.0 .^ (0:1//2:5//2)
 abstols = reltols = zero(dts)
 
 # Adaptive steps:

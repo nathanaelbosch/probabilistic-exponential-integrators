@@ -22,7 +22,7 @@ DM = FixedDiffusion()
 
 # Fixed steps:
 # dts = 1.0 ./ 10.0 .^ (-1//2:1//2:2)
-dts = 1.0 ./ 10.0 .^ (-1//2:1//2:6//2)
+dts = 1.0 ./ 10.0 .^ (0:1//2:6//2)
 abstols = reltols = zero(dts)
 
 FINAL = true
@@ -100,4 +100,5 @@ for nu in NUS
                               name=str)
     end
     save(joinpath(DIR, "burgers_results.jld"), "results", results)
+    @info "Saved results to" joinpath(DIR, "burgers_results.jld")
 end

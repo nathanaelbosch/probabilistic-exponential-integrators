@@ -136,7 +136,7 @@ function uux!(du, u; dx, boundary_condition="zero-dirichlet")
     end
     return nothing
 end
-function prob_burgers(; N=100, Omega=(0, 1), tspan=(0.0, 1.0), kwargs...)
+function prob_burgers(; N=250, Omega=(0, 1), tspan=(0.0, 1.0), kwargs...)
     # u_t = -u u_x + u_xx
     dx = (Omega[2] - Omega[1]) // N
     xs = range(Omega[1], Omega[2], length=N)
@@ -144,7 +144,7 @@ function prob_burgers(; N=100, Omega=(0, 1), tspan=(0.0, 1.0), kwargs...)
     ∇² =
         ForwardDiff.jacobian(
             x -> laplace_1d(x; dx, boundary_condition="zero-dirichlet"), u0) |> sparse
-    L = 0.03 * ∇² * 2
+    L = 0.075 * ∇²
 
     function f(du, u, p, t)
         @unpack dx, L = p
