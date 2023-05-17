@@ -1,6 +1,9 @@
 LINEALPHA = 0.4
+MARKERALPHA = 0.9
 
-MARKERSIZE, LINEWIDTH = 8, 3
+MARKERSIZE, LINEWIDTH = 5, 2
+MARKERSIZEDIFF = 0
+
 PlotTheme = Theme(
     # Axis=(
     # xlabelsize=8,
@@ -43,11 +46,9 @@ PlotTheme = Theme(
     ),
     ScatterLines=(
         ;
-        # markersize=5,
-        # linewidth=1,
         markersize=MARKERSIZE,
         linewidth=LINEWIDTH,
-        strokewidth=0.2,
+        strokewidth=0.1,
     ),
     Legend=(;
         labelsize=8,
@@ -66,7 +67,8 @@ PlotTheme = Theme(
 )
 
 C = Makie.wong_colors()
-C1, C2, C3 = Makie.wong_colors()[1:3]
+# C1, C2, C3 = Makie.wong_colors()[1:3]
+C2, C3 = C[2], C[3]
 _alg_styles = Dict(
     "Tsit5" => (
         color=:gray,
@@ -89,22 +91,22 @@ _alg_styles = Dict(
         marker=:ltriangle,
     ),
     "EK0+IWP" => (
-        color=C1,
+        color=(:gray, MARKERALPHA),
         # linestyle=:solid,
         marker=:diamond,
     ),
     "EK1+IWP" => (
-        color=C1,
+        color=(:gray, MARKERALPHA),
         # linestyle=:dash,
         marker=:pentagon,
     ),
     "EK0.5+IWP" => (
-        color=C1,
+        color=(:gray, MARKERALPHA),
         # linestyle=:dot,
         marker=:hexagon,
     ),
     "EKL+IWP" => (
-        color=C[4],
+        color=(:gray, MARKERALPHA),
         marker=:hexagon,
         # markersize=MARKERSIZE-4,
         # linewidth=LINEWIDTH-2,
@@ -112,22 +114,26 @@ _alg_styles = Dict(
     "EK0+IOUP" => (
         color=C2,
         # linestyle=:solid,
-        marker=:star4,
+        marker=:xcross,
+        markersize=MARKERSIZE+MARKERSIZEDIFF,
     ),
     "EK1+IOUP" => (
         color=C2,
         # linestyle=:dash,
         marker=:star5,
+        markersize=MARKERSIZE+MARKERSIZEDIFF,
     ),
     "EK0+IOUP+RB" => (
         color=C3,
         # linestyle=:solid,
-        marker=:cross,
+        marker=:star4,
+        markersize=MARKERSIZE+MARKERSIZEDIFF,
     ),
     "EK1+IOUP+RB" => (
         color=C3,
         # linestyle=:dash,
-        marker=:xcross,
+        marker=:cross,
+        markersize=MARKERSIZE+MARKERSIZEDIFF,
     ),
 )
 
