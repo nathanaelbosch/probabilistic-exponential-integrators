@@ -51,7 +51,7 @@ set_theme!(
             figure_padding=(-7, 12, 1, 0),
             Axis=(
                 # titlesize=7,
-                xticks=LogTicks(WilkinsonTicks(3)),
+                xticks=LogTicks(LinearTicks(4)),
                 yticks=LogTicks(WilkinsonTicks(3)),
                 # xlabelsize=7,
                 # ylabelsize=7,
@@ -87,7 +87,9 @@ gl = fig[1, 1] = GridLayout()
 ax_sol = Axis(
     gl[1, 1],
     xticks=([0.5, length(prob.u0) + 0.5], ["0", "1"]),
-    yticks=[prob.tspan[1], prob.tspan[2]],
+    yticks=([ref_sol.t[begin] - (ref_sol.t[begin+1] - ref_sol.t[begin])/2,
+             ref_sol.t[end] + (ref_sol.t[end] - ref_sol.t[end-1])/2],
+            ["0", "1"]),
     xlabel="Space",
     ylabel="Time",
     title=rich(rich("a. ", font="Times New Roman Bold"),
@@ -161,8 +163,12 @@ for alg in algs
     sclines[alg] = scl
 end
 
-leg = Legend(fig[:, end+1], [sclines[k] for k in algs], [get_label(k) for k in algs],
-    tellwidth=true)
+leg = Legend(
+    fig[:, end+1],
+    [sclines[k] for k in algs],
+    [get_label(k) for k in algs],
+    tellwidth=true,
+)
 
 colgap!(fig.layout, 1, 5)
 colgap!(fig.layout, 2, 3)

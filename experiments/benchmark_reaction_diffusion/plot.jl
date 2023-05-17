@@ -88,7 +88,9 @@ gl = fig[1, 1] = GridLayout()
 ax_sol = Axis(
     gl[1, 1],
     xticks=([0.5, length(prob.u0) + 0.5], ["0", "1"]),
-    yticks=[prob.tspan[1], prob.tspan[2]],
+    yticks=([ref_sol.t[begin] - (ref_sol.t[begin+1] - ref_sol.t[begin])/2,
+             ref_sol.t[end] + (ref_sol.t[end] - ref_sol.t[end-1])/2],
+            ["0", "2"]),
     xlabel="Space",
     ylabel="Time",
     title=rich(rich("a. ", font="Times New Roman Bold"),

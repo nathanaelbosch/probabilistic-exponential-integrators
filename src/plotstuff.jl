@@ -142,9 +142,52 @@ function get_label(alg_str)
         RB = occursin("+RB", alg_str) ? " (RB)" : ""
         (ALG == "EK0" && PRIOR == "IOUP") && (ALG = "EKL")
         # return L"\text{%$ALG & %$PRIOR(%$NU)%$RB}"
-        return "$ALG & $PRIOR($NU)$RB"
+        return rich(
+            "$ALG & $PRIOR($NU)$RB",
+            color = PRIOR == "IOUP" ? :black : :dimgray,
+        )
     else
         # return L"\text{%$alg_str}"
         return alg_str
     end
 end
+
+# Fixes from here: https://github.com/MakieOrg/Makie.jl/issues/2838
+# function Makie.Legend(fig_or_scene,
+#                       contents::AbstractArray,
+#                       labels::AbstractArray{<:Makie.Optional{Makie.RichText}},
+#                       title::Makie.Optional{<:Makie.RichText}=nothing;
+#                       kwargs...)
+#     if length(contents) != length(labels)
+#         error(
+#             "Number of elements not equal: $(length(contents)) content elements and $(length(labels)) labels.",
+#         )
+#     end
+
+#     entrygroups = Observable{Vector{Makie.EntryGroup}}([])
+#     legend = Legend(fig_or_scene, entrygroups; kwargs...)
+#     entries = [LegendEntry(label, content, legend)
+#                for (content, label) in zip(contents, labels)]
+#     entrygroups[] = [(title, entries)]
+#     legend
+# end
+
+# function Makie.LegendEntry(label::Makie.Optional{Makie.RichText}, contentelements::AbstractArray, legend; kwargs...)
+#     attrs = Attributes(label = label)
+
+#     kwargattrs = Attributes(kwargs)
+#     merge!(attrs, kwargattrs)
+
+#     elems = vcat(Makie.legendelements.(contentelements, Ref(legend))...)
+#     Makie.LegendEntry(elems, attrs)
+# end
+
+# function Makie.LegendEntry(label::Makie.Optional{Makie.RichText}, contentelement, legend; kwargs...)
+#     attrs = Attributes(label = label)
+
+#     kwargattrs = Attributes(kwargs)
+#     merge!(attrs, kwargattrs)
+
+#     elems = Makie.legendelements(contentelement, legend)
+#     Makie.LegendEntry(elems, attrs)
+# end

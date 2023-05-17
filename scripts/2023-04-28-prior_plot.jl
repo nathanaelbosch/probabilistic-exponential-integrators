@@ -12,9 +12,8 @@ set_theme!(
     merge(
         Theme(
             Axis=(;
-                titlesize=8
-                # xgridvisible=false,
-                # ygridvisible=false,
+                titlesize=8,
+                ygridvisible=false,
             ),
             Lines=(;
                 linewidth=0.5,
@@ -132,7 +131,6 @@ ax_ioup_init = Axis(
 A, Q = ProbNumDiffEq.discretize(ProbNumDiffEq.IWP(d, q), float(dt))
 Q = Matrix(Q)
 ms, Cs = predict(A, Q, N; randinit=true)
-lines!(ax_iwp, ts, ms[:, 1], color=COLORS[1])
 fill_between!(
     ax_iwp,
     ts,
@@ -144,11 +142,12 @@ for _ in 1:M
     ys_iwp = simulate(A, Q, N)
     series!(ax_iwp, ts, ys_iwp', solid_color=(COLORS[1], ALPHA))
 end
+lines!(ax_iwp, ts, ms[:, 1], color=COLORS[1])
+lines!(ax_iwp, sol.t, Array(sol)[1, :], color=(:black, 0.8), linestyle=:solid)
 
 A, Q = ProbNumDiffEq.discretize(ProbNumDiffEq.IOUP(d, q, L), dt)
 Q = Matrix(Q)
 ms, Cs = predict(A, Q, N; randinit=true)
-lines!(ax_ioup, ts, ms[:, 1], color=COLORS[2])
 fill_between!(
     ax_ioup,
     ts,
@@ -160,9 +159,10 @@ for _ in 1:M
     ys_ioup = simulate(A, Q, N)
     series!(ax_ioup, ts, ys_ioup', solid_color=(COLORS[2], ALPHA))
 end
+lines!(ax_ioup, ts, ms[:, 1], color=COLORS[2])
+lines!(ax_ioup, sol.t, Array(sol)[1, :], color=(:black, 0.8), linestyle=:solid)
 
 ms, Cs = predict(A, Q, N; randinit=false)
-lines!(ax_ioup_init, ts, ms[:, 1], color=COLORS[3])
 fill_between!(
     ax_ioup_init,
     ts,
@@ -174,9 +174,7 @@ for _ in 1:M
     ys_ioup = simulate(A, Q, N; randinit=false)
     series!(ax_ioup_init, ts, ys_ioup', solid_color=(COLORS[3], ALPHA))
 end
-
-lines!(ax_iwp, sol.t, Array(sol)[1, :], color=(:black, 0.8), linestyle=:solid)
-lines!(ax_ioup, sol.t, Array(sol)[1, :], color=(:black, 0.8), linestyle=:solid)
+lines!(ax_ioup_init, ts, ms[:, 1], color=COLORS[3])
 lines!(ax_ioup_init, sol.t, Array(sol)[1, :], color=(:black, 0.8), linestyle=:solid)
 
 xlims!(ax_iwp, (0, T))

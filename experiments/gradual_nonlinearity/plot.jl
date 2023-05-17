@@ -14,7 +14,7 @@ data = load(joinpath(DIR, "workprecisiondata.jld"))
 steps = "fixed"
 wpss = data["wpss_$steps"]
 
-bs = (1e-10, 1e-7, 1e-4, 1e-1)
+bs = (1e-10, 1e-7, 1e-4, 1e-1) |> reverse
 NU = 2
 algs = (
     # "Tsit5",
@@ -28,7 +28,7 @@ algs = (
 
 set_theme!(
     merge(
-        Theme(Axis=(;yticks=([1e0, 1e-10], ["10⁰", "10⁻¹⁰"]))),
+        Theme(Axis=(;yticks=([1e0, 1e-10, 1e-20], ["10⁰", "10⁻¹⁰", "10⁻²⁰"]))),
         PlotTheme,
         Theme(
             TuePlots.SETTINGS[:NEURIPS];
@@ -65,7 +65,7 @@ for i in 1:length(bs)
         title=L"\dot{y} = - y + 10^{%$(Int(log10(b)))} \cdot y^2",
         xlabel="Number of steps",
         # xlabel="nf",
-        ylabel=i == 1 ? "Error (L2)" : "",
+        ylabel=i == 1 ? "Final error" : "",
     )
     push!(axes, ax)
     for alg in algs
@@ -74,10 +74,10 @@ for i in 1:length(bs)
             ax,
             [r[:nsteps] for r in wp],
             # [r[:nf] for r in wp],
-            [r[:L2] for r in wp];
+            [r[:final] for r in wp];
             label=alg,
             get_alg_style(alg)...,
-            color=(get_alg_style(alg).color, 0.5),
+            color=(get_alg_style(alg).color, BEIE.LINEALPHA),
             markercolor=get_alg_style(alg).color,
         )
         sclines[alg] = scl
@@ -86,7 +86,7 @@ end
 linkyaxes!(axes...)
 linkxaxes!(axes...)
 if steps == "fixed"
-    ylims!.(axes, Ref((1e-18, 1e3)))
+    ylims!.(axes, Ref((1e-23, 1e3)))
 end
 
 # for i in 1:length(bs)
