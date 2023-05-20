@@ -12,7 +12,6 @@ DIR = @__DIR__
 data = load(joinpath(DIR, "results.jld"))
 results = data["results"]
 
-# NU = results["NU"]
 NU = 2
 
 x = :dt
@@ -32,16 +31,10 @@ ylabel = String(y)
 ylabel = "Final error"
 
 algs = (
-    # "Tsit5",
-    # "BS3",
-    # "Rosenbrock23",
-    # "Rosenbrock32",
     "EK0+IWP($NU)",
     "EK1+IWP($NU)",
     "EKL+IWP($NU)",
     "EK0+IOUP($NU)",
-    # "EK1+IOUP($NU)",
-    # "EK0+IOUP($NU)+RB",
     "EK1+IOUP($NU)+RB",
 )
 
@@ -50,15 +43,9 @@ set_theme!(
         Theme(
             figure_padding=(-7, 12, 1, 0),
             Axis=(
-                # titlesize=7,
                 xticks=LogTicks(LinearTicks(4)),
                 yticks=LogTicks(WilkinsonTicks(3)),
-                # xlabelsize=7,
-                # ylabelsize=7,
-                # xticklabelsize=7,
-                # yticklabelsize=7,
             ),
-            # Legend=(; labelsize=7),
         ),
         PlotTheme,
         Theme(
@@ -67,10 +54,7 @@ set_theme!(
             fontsize=true,
             figsize=true,
             thinned=true,
-            # width_coeff=0.35,
             nrows=1.1, ncols=3,
-            # subplot_height_to_width_ratio=1/TuePlots.GOLDEN_RATIO,
-            # subplot_height_to_width_ratio=1,
         ),
     ),
 )
@@ -142,8 +126,6 @@ ax2 = Axis(
     yscale=log10,
     yticklabelsvisible=false,
     xlabel=x2label,
-    # title=rich(rich("c. ", font="Times Bold"),
-    #     rich("Uncertainty calibration", font="Times")),
 )
 (x2 == :chi2_final) && vlines!(ax2, [1], color=:gray, linestyle=:dash, linewidth=1)
 for alg in algs

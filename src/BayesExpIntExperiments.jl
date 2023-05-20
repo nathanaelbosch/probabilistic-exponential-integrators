@@ -11,7 +11,7 @@ using DiffEqDevTools
 using CairoMakie
 using ProgressMeter
 
-include("reaction_diffusion.jl")
+include("problems.jl")
 include("workprecision.jl")
 include("plotstuff.jl")
 

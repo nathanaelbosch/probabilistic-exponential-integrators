@@ -1,7 +1,3 @@
-#=
-This script reproduces the plots from
-https://math.stackexchange.com/questions/1466978/advantage-of-l-stability-compared-to-a-stability
-=#
 using ProbNumDiffEq, DiffEqCallbacks, OrdinaryDiffEq, LinearAlgebra
 import Plots
 Plots.theme(:default;
@@ -19,7 +15,6 @@ u0 = [0.0, 1.0]
 tspan = (0.0, 3.0)
 prob = ODEProblem(f, u0, tspan)
 L = [-0.5 20; 0 -20]
-# L = [0 20; 0 -20]
 
 ref_sol = solve(prob, ImplicitEuler(), abstol=1e-10, reltol=1e-10)
 
@@ -29,34 +24,9 @@ sol_ek0.destats
 sol_ek1 = solve(prob, EK1());
 sol_ek1.destats
 
-# Plots.plot(sol_ek0, denseplot=false, marker=:o, markersize=1, markerstrokewidth=0.1)
-# Plots.plot!(sol_ek1, denseplot=false, marker=:o, markersize=1, markerstrokewidth=0.1)
-
-############################################################################################
-# Fig 1
-# dt_small, dt_large = 0.01, 0.1
 order = 3
 diffusionmodel = FixedDiffusion()
-# diffusionmodel = DynamicDiffusion()
-# callback = PresetTimeCallback([0.5], integ -> SciMLBase.set_proposed_dt!(integ, dt_large))
 
-# sol_ek0 = solve(prob, EK0(; order, diffusionmodel); adaptive=false, dt=dt_small, callback);
-# sol_ek1 = solve(prob, EK1(; order, diffusionmodel); adaptive=false, dt=dt_small, callback);
-# L = [-0.5 20; 0 -20]
-# sol_ek0_ioup = solve(prob, EK0(; prior=IOUP(order, L), diffusionmodel);
-#     adaptive=false, dt=dt_small, callback);
-
-# Plots.plot(ref_sol, ylims=(0, 1), color=:black, linestyle=:dash, label="ref")
-# Plots.plot!(sol_ek0, denseplot=false, marker=:o, ribbon=0, label="EK0+IWP", color=1)
-# Plots.plot!(sol_ek1, denseplot=false, marker=:o, ribbon=0, label="EK1+IWP", color=2)
-# Plots.plot!(sol_ek0_ioup, denseplot=false, marker=:o, ribbon=0, label="EK0+IOUP", color=3)
-
-############################################################################################
-# Fig 2
-# dt_ek0 = 0.055
-# dt_ek1 = 0.1
-# dt_ek0 = 0.025
-# dt_ek1 = 0.
 dt_ek0 = 0.01
 dt_ek1 = 0.25
 dt_ek0_ioup = 0.5
@@ -78,37 +48,8 @@ sol_ek1 = solve(
 sol_ek0_ioup = solve(prob, EK0(; prior=IOUP(order, L), diffusionmodel, smooth=SMOOTH);
     adaptive=false, dt=dt_ek1, dense=SMOOTH);
 
-# Plots.plot(ref_sol, ylims=(0, 1), color=:black, linestyle=:dash, label="ref")
-# p1 = Plots.plot!(sol_ek0,
-#     # denseplot=false,
-#     marker=:o, ribbon=0, label="EK0+IWP", color=1)
-
-# Plots.plot(ref_sol, ylims=(0, 1), color=:black, linestyle=:dash, label="ref")
-# p2 = Plots.plot!(sol_ek1,
-#     # denseplot=false,
-#     marker=:o, ribbon=0, label="EK1+IWP", color=2)
-
-# Plots.plot(ref_sol, ylims=(0, 1), color=:black, linestyle=:dash, label="ref")
-# p3 = Plots.plot!(
-#     sol_ek0_ioup,
-#     # denseplot=false,
-#     marker=:o,
-#     ribbon=0,
-#     label="EK0+IOUP",
-#     color=3,
-# )
-
-# Plots.plot(
-#     p1,
-#     p2,
-#     p3,
-#     layout=(1, 3),
-#     size=(900, 300),
-#     title=["Explicit" "A-stable" "L-stable"],
-# )
 
 ############################################################################################
-# Now with Makie.jl
 using CairoMakie, TuePlots, LaTeXStrings, ColorSchemes
 import BayesExpIntExperiments: PlotTheme
 
@@ -120,8 +61,6 @@ set_theme!(
         Theme(
             Axis=(;
                 titlesize=8
-                #     # xgridvisible=false,
-                #     # ygridvisible=false,
             ),
             Lines=(;
                 linewidth=0.5,
@@ -140,10 +79,7 @@ set_theme!(
             fontsize=true,
             figsize=true,
             thinned=true,
-            # width_coeff=0.35,
             nrows=1, ncols=3,
-            # subplot_height_to_width_ratio=1/TuePlots.GOLDEN_RATIO,
-            # subplot_height_to_width_ratio=1,
         ),
     ),
 )
@@ -153,7 +89,6 @@ ax_ek0 = Axis(
     fig[1, 1];
     yticks=[0, 1],
     xticks=[0, tspan[2]],
-    # xticklabelsvisible = false,
     title=rich(rich("a. ", font="Times New Roman Bold"),
         rich("Explicit method (not A-stable)", font="Times New Roman")),
     xlabel=L"t",
@@ -175,7 +110,6 @@ ax_ek0_ioup = Axis(
         rich("Exponential integrator (L-stable)", font="Times New Roman")),
     xlabel=L"t",
 )
-# colgap!(fig.layout, 10)
 
 dense_ts = tspan[1]:0.01:tspan[2]
 vecvec2mat(vv) = hcat(vv...)
@@ -185,9 +119,7 @@ for (i, (ax, sol)) in
     series!(ax, ref_sol.t, vecvec2mat(ref_sol.u), solid_color=:black, linestyle=:dash)
     xlims!(ax, tspan)
     ylims!(ax, -0.1, 1.2)
-    # us = sol(dense_ts).u
     us = sol.pu
-    # means = us.μ |> vecvec2mat
     means = sol.u |> vecvec2mat
     stddevs = sqrt.(vecvec2mat(diag.(us.Σ)))
     for j in 1:2
@@ -197,8 +129,6 @@ for (i, (ax, sol)) in
             sol.t,
             means[j, :] - 1.96stddevs[j, :],
             means[j, :] + 1.96stddevs[j, :],
-            # max.(means[j, :] - 1.96stddevs[j, :], 0 .+ zero(means[j, :])),
-            # min.(means[j, :] + 1.96stddevs[j, :], 1 .+ zero(means[j, :])),
             color=(COLORS[i], 0.25),
         )
     end

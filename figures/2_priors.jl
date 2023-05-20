@@ -7,7 +7,6 @@ import BayesExpIntExperiments: PlotTheme
 DIR = @__DIR__
 
 COLORS = ColorSchemes.tableau_10.colors
-# COLORS = ColorSchemes.Set1_3
 ALPHA = 0.5
 
 set_theme!(
@@ -25,14 +24,6 @@ set_theme!(
                 linewidth=0.5,
                 solid_color=:gray,
             ),
-            # Label=(
-            #     halign=:left,
-            #     tellwidth=false,
-            #     # tellheight=false,
-            #     justification=:left,
-            #     padding=(12, 0, 1, 0),
-            #     # font="Times New Roman",
-            # ),
         ),
         PlotTheme,
         Theme(
@@ -41,10 +32,7 @@ set_theme!(
             fontsize=true,
             figsize=true,
             thinned=true,
-            # width_coeff=0.35,
             nrows=1, ncols=3,
-            # subplot_height_to_width_ratio=1/TuePlots.GOLDEN_RATIO,
-            # subplot_height_to_width_ratio=1,
         ),
     ),
 )
@@ -60,7 +48,6 @@ prob = ODEProblem{true,SciMLBase.FullSpecialize()}(f!, u0, tspan)
 sol = solve(prob, Tsit5(), abstol=1e-6, reltol=1e-6, saveat=0.01)
 
 d, q = 2, 1
-# κ² = 1e0
 κ² = 1e0
 D = d * (q + 1)
 E0 = [1 0] * ProbNumDiffEq.projection(d, q)(0)

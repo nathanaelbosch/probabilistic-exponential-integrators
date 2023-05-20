@@ -1,7 +1,3 @@
-#=
-Reaction diffusion models
-=#
-
 """
 One-dimensional laplace operator, discretized with finite differences.
 Includes boundary conditions
@@ -75,55 +71,12 @@ function prob_rd_1d(
     return prob, L
 end
 
-"""A sensible default for relatively nice fisher / spruce-budworm plots"""
-_logistic_init(N) = begin
-    xs = range(-10, 20, length=N)
-    return @. 1 - (exp(xs) / (1 + exp(xs)))
-end
-
 prob_rd_1d_fisher(; N=100, Omega=(0, 1), tspan=(0, 2), diffusion=0.25, kwargs...) = begin
     xs = range(Omega[1], Omega[2], length=N)
     dx = (Omega[2] - Omega[1]) / N
     u0 = @. 1 - (exp(xs * 30 - 10) / (1 + exp(xs * 30 - 10)))
     reaction!(du, u) = (@. du = u * (1 - u))
     return prob_rd_1d(; u0, reaction!, tspan, diffusion, dx, kwargs...)
-end
-
-prob_rd_1d_newell_whitehead_segel(; N, kwargs...) = begin
-    reaction!(du, u) = (@. du = u * (1 - u)^2)
-    u0 = _logistic_init(N)
-    return prob_rd_1d(; u0, reaction!, kwargs...)
-end
-
-prob_rd_1d_zeldovich_frank_kamenetskii(; N, β=1, kwargs...) = begin
-    reaction!(du, u) = (@. du = u * (1 - u) * exp(-β * (1 - u)))
-    u0 = _logistic_init(N)
-    return prob_rd_1d(; u0, reaction!, kwargs...)
-end
-
-prob_rd_1d_sir(; N=30, diffusion=1, β=0.3, γ=0.07, P=1000.0,
-    tspan=(0.0, 70.0), dx=0.5, kwargs...) = begin
-    reaction!(du, u) = begin
-        S, dS = view(u, 1:N), view(du, 1:N)
-        I, dI = view(u, N+1:2N), view(du, N+1:2N)
-        R, dR = view(u, 2N+1:3N), view(du, 2N+1:3N)
-        @. dS = -β * S * I / P
-        @. dI = β * S * I / P - γ * I
-        @. dR = γ * I
-    end
-
-    # xs = range(-5, 15, length=N)
-    # I0 = @. 200 * exp(-(xs .^ 2) ./ 1 .^ 2) + 1
-    xs = range(0, 2π, length=N)
-    noise = rand(N)
-    I0 = @. 100 * (sin(xs) + 0.5noise)^2 + 1
-    I0 = zeros(N)
-    I0[1] = P * 0.5
-    S0 = P * ones(N) - I0
-    R0 = zeros(N)
-    u0 = vcat(S0, I0, R0)
-
-    return prob_rd_1d(; u0, reaction!, diffusion, tspan, dx, n_components=3, kwargs...)
 end
 
 function uux!(du, u; dx, boundary_condition="zero-dirichlet")

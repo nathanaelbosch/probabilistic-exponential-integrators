@@ -10,18 +10,13 @@ prob, L = BEIE.prob_burgers()
 prob_appxjac = ODEProblem(ODEFunction(prob.f.f, jac=(J, u, p, t) -> (J .= L)),
     prob.u0, prob.tspan, prob.p)
 ref_sol = solve(prob, RadauIIA5(), abstol=1e-20, reltol=1e-20)
-# import Plots
-# Plots.plot(ref_sol)
-# solve(prob, EK1());
 
 sol = solve(prob, EK1(prior=IWP(3), smooth=false, diffusionmodel=FixedDiffusion()),
     dense=false, adaptive=false, dt=1e-1)
 
 DM = FixedDiffusion()
-# DM = DynamicDiffusion()
 
 # Fixed steps:
-# dts = 1.0 ./ 10.0 .^ (-1//2:1//2:2)
 dts = 1.0 ./ 10.0 .^ (0:1//2:6//2)
 abstols = reltols = zero(dts)
 
