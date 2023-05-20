@@ -4,6 +4,7 @@ using TuePlots
 using OrdinaryDiffEq
 using LaTeXStrings
 
+import BayesExpIntExperiments as BEIE
 import BayesExpIntExperiments: get_alg_style, get_label, PlotTheme
 
 DIR = @__DIR__
