@@ -8,7 +8,7 @@ DIR = "experiments/benchmark_reaction_diffusion"
 prob, L = BEIE.prob_rd_1d_fisher()
 @info "run.jl problem size:" length(prob.u0)
 prob_appxjac = ODEProblem(ODEFunction(prob.f.f, jac=(J, u, p, t) -> (J .= L)),
-                          prob.u0, prob.tspan, prob.p)
+    prob.u0, prob.tspan, prob.p)
 ref_sol = solve(prob, RadauIIA5(), abstol=1e-20, reltol=1e-20)
 # import Plots
 # Plots.plot(ref_sol)
@@ -53,8 +53,8 @@ wp_fun(prob, alg; kwargs...) = BEIE.MyWorkPrecision(
     dense=!FINAL,
     verbose=false,
     save_everystep=!FINAL,
-    kwargs...
-        )
+    kwargs...,
+)
 
 results = Dict()
 results["Tsit5"] = wp_fun(prob, Tsit5())

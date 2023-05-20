@@ -28,7 +28,7 @@ algs = (
 
 set_theme!(
     merge(
-        Theme(Axis=(;yticks=([1e0, 1e-10, 1e-20], ["10⁰", "10⁻¹⁰", "10⁻²⁰"]))),
+        Theme(Axis=(; yticks=([1e0, 1e-10, 1e-20], ["10⁰", "10⁻¹⁰", "10⁻²⁰"]))),
         PlotTheme,
         Theme(
             TuePlots.SETTINGS[:NEURIPS];

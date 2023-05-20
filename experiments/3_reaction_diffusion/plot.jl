@@ -88,13 +88,14 @@ gl = fig[1, 1] = GridLayout()
 ax_sol = Axis(
     gl[1, 1],
     xticks=([0.5, length(prob.u0) + 0.5], ["0", "1"]),
-    yticks=([ref_sol.t[begin] - (ref_sol.t[begin+1] - ref_sol.t[begin])/2,
-             ref_sol.t[end] + (ref_sol.t[end] - ref_sol.t[end-1])/2],
-            ["0", "2"]),
+    yticks=(
+        [ref_sol.t[begin] - (ref_sol.t[begin+1] - ref_sol.t[begin]) / 2,
+            ref_sol.t[end] + (ref_sol.t[end] - ref_sol.t[end-1]) / 2],
+        ["0", "2"]),
     xlabel="Space",
     ylabel="Time",
     title=rich(rich("a. ", font="Times New Roman Bold"),
-               rich("ODE solution", font="Times New Roman")),
+        rich("ODE solution", font="Times New Roman")),
 )
 hm = CairoMakie.heatmap!(
     ax_sol,
@@ -104,11 +105,10 @@ hm = CairoMakie.heatmap!(
     colormap=:thermal, colorrange=(0, 1),
     fxaa=false,
 )
-cb = Colorbar(gl[1,2], hm, size=3)
+cb = Colorbar(gl[1, 2], hm, size=3)
 colgap!(gl, 3)
 colsize!(gl, 1, Aspect(1, 1.0))
 colsize!(fig.layout, 1, Auto(1.0))
-
 
 # Work-precision
 sclines = Dict()
@@ -127,8 +127,8 @@ for alg in algs
     scl = scatterlines!(
         ax,
         x == :nsteps ?
-            [(prob.tspan[2] - prob.tspan[1]) / r[:dt] for r in wp] :
-            [r[x] for r in wp],
+        [(prob.tspan[2] - prob.tspan[1]) / r[:dt] for r in wp] :
+        [r[x] for r in wp],
         [r[y] for r in wp];
         label=alg,
         get_alg_style(alg)...,

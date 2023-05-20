@@ -59,8 +59,20 @@ dt_ek0 = 0.01
 dt_ek1 = 0.25
 dt_ek0_ioup = 0.5
 SMOOTH = true
-sol_ek0 = solve(prob, EK0(; order, diffusionmodel, smooth=SMOOTH); adaptive=false, dt=dt_ek0, dense=SMOOTH);
-sol_ek1 = solve(prob, EK1(; order, diffusionmodel, smooth=SMOOTH); adaptive=false, dt=dt_ek1, dense=SMOOTH);
+sol_ek0 = solve(
+    prob,
+    EK0(; order, diffusionmodel, smooth=SMOOTH);
+    adaptive=false,
+    dt=dt_ek0,
+    dense=SMOOTH,
+);
+sol_ek1 = solve(
+    prob,
+    EK1(; order, diffusionmodel, smooth=SMOOTH);
+    adaptive=false,
+    dt=dt_ek1,
+    dense=SMOOTH,
+);
 sol_ek0_ioup = solve(prob, EK0(; prior=IOUP(order, L), diffusionmodel, smooth=SMOOTH);
     adaptive=false, dt=dt_ek1, dense=SMOOTH);
 

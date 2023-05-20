@@ -10,8 +10,8 @@ PlotTheme = Theme(
     # ylabelsize=8,
     # titlesize=8
     # ),
-    colgap = 10,
-    figure_padding = (1, 5, 1, 0),
+    colgap=10,
+    figure_padding=(1, 5, 1, 0),
     Axis=(
         titlesize=8,
         titlealign=:left,
@@ -58,12 +58,12 @@ PlotTheme = Theme(
         framevisible=false,
         rowgap=1,
     ),
-    Colorbar = (
+    Colorbar=(
         ;
         spinewidth=0.5,
         tickwidth=0.5,
         ticksize=2,
-    )
+    ),
 )
 
 C = Makie.wong_colors()
@@ -115,25 +115,25 @@ _alg_styles = Dict(
         color=C2,
         # linestyle=:solid,
         marker=:xcross,
-        markersize=MARKERSIZE+MARKERSIZEDIFF,
+        markersize=MARKERSIZE + MARKERSIZEDIFF,
     ),
     "EK1+IOUP" => (
         color=C2,
         # linestyle=:dash,
         marker=:star5,
-        markersize=MARKERSIZE+MARKERSIZEDIFF,
+        markersize=MARKERSIZE + MARKERSIZEDIFF,
     ),
     "EK0+IOUP+RB" => (
         color=C3,
         # linestyle=:solid,
         marker=:star4,
-        markersize=MARKERSIZE+MARKERSIZEDIFF,
+        markersize=MARKERSIZE + MARKERSIZEDIFF,
     ),
     "EK1+IOUP+RB" => (
         color=C3,
         # linestyle=:dash,
         marker=:cross,
-        markersize=MARKERSIZE+MARKERSIZEDIFF,
+        markersize=MARKERSIZE + MARKERSIZEDIFF,
     ),
 )
 
@@ -150,7 +150,7 @@ function get_label(alg_str)
         # return L"\text{%$ALG & %$PRIOR(%$NU)%$RB}"
         return rich(
             "$ALG & $PRIOR($NU)$RB",
-            color = PRIOR == "IOUP" ? :black : :dimgray,
+            color=PRIOR == "IOUP" ? :black : :dimgray,
         )
     else
         # return L"\text{%$alg_str}"
