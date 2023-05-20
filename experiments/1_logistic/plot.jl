@@ -5,10 +5,9 @@ using OrdinaryDiffEq
 # using Plots
 using LaTeXStrings
 
-import BayesExpIntExperiments: get_alg_style, C1, C2, get_label, PlotTheme
+import BayesExpIntExperiments: get_alg_style, get_label, PlotTheme
 
-# DIR = @__DIR__
-DIR = "experiments/gradual_nonlinearity"
+DIR = @__DIR__
 data = load(joinpath(DIR, "workprecisiondata.jld"))
 # steps = "adaptive"
 steps = "fixed"
@@ -135,4 +134,6 @@ for (i, b) in enumerate(bs)
     foreach(ele -> translate!(ax.elements[ele], 0, 0, 9), filtered)
 end
 
-save("../bayes-exp-int/figures/gradual_nonlinearity_$steps.pdf", fig, pt_per_unit=1)
+filename = joinpath(DIR, "logistic.pdf")
+save(filename, fig, pt_per_unit=1)
+@info "Saved figure to $filename"
