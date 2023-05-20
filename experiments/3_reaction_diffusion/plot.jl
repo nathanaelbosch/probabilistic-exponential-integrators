@@ -8,7 +8,7 @@ using LaTeXStrings
 import BayesExpIntExperiments as BEIE
 import BayesExpIntExperiments: get_label, PlotTheme, get_alg_style, LINEALPHA
 
-DIR = "experiments/benchmark_reaction_diffusion"
+DIR = @__DIR__
 data = load(joinpath(DIR, "workprecisiondata.jld"))
 results = data["results"]
 
@@ -80,7 +80,6 @@ fig = Figure()
 
 # Solution plot
 prob, L = BEIE.prob_rd_1d_fisher(; N=100)
-@info "plot.jl" length(prob.u0)
 d = length(prob.u0)
 ref_sol = solve(prob, RadauIIA5(), abstol=1e-20, reltol=1e-20, saveat=0.02)
 Array(ref_sol)
@@ -181,4 +180,6 @@ linkyaxes!(ax, ax2)
 (x2 == :chi2_final) && CairoMakie.xlims!(ax2, 1e-6, 1e7)
 (x == :nsteps) && CairoMakie.xlims!(ax, 1e0, nothing)
 
-save("../bayes-exp-int/figures/reaction_diffusion.pdf", fig, pt_per_unit=1)
+filename = joinpath(DIR, "plot.pdf")
+save(filename, fig, pt_per_unit=1)
+@info "Saved figure to $filename"

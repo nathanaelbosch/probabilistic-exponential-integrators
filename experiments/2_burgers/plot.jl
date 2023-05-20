@@ -6,10 +6,10 @@ using Distributions
 using LaTeXStrings
 
 import BayesExpIntExperiments as BEIE
-import BayesExpIntExperiments: C1, C2, get_label, PlotTheme, get_alg_style, LINEALPHA
+import BayesExpIntExperiments: get_label, PlotTheme, get_alg_style, LINEALPHA
 
-DIR = "experiments/benchmark_reaction_diffusion"
-data = load(joinpath(DIR, "burgers_results.jld"))
+DIR = @__DIR__
+data = load(joinpath(DIR, "results.jld"))
 results = data["results"]
 
 # NU = results["NU"]
@@ -79,7 +79,6 @@ fig = Figure()
 
 # Solution plot
 prob, L = BEIE.prob_burgers(; N=100)
-@info "plot.jl" length(prob.u0)
 d = length(prob.u0)
 ref_sol = solve(prob, RadauIIA5(), abstol=1e-20, reltol=1e-20, saveat=0.01)
 Array(ref_sol)
@@ -177,4 +176,6 @@ colgap!(fig.layout, 3, 0)
 linkyaxes!(ax, ax2)
 (x2 == :chi2_final) && CairoMakie.xlims!(ax2, 1e-8, 1e20)
 
-save("../bayes-exp-int/figures/burgers.pdf", fig, pt_per_unit=1)
+filename = joinpath(DIR, "plot.pdf")
+save(filename, fig, pt_per_unit=1)
+@info "Saved figure to $filename"
