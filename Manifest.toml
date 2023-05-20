@@ -1826,7 +1826,9 @@ uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [[deps.ProbNumDiffEq]]
 deps = ["DiffEqBase", "DiffEqDevTools", "ExponentialUtilities", "FastBroadcast", "FastGaussQuadrature", "ForwardDiff", "FunctionWrappersWrappers", "GaussianDistributions", "LinearAlgebra", "Octavian", "OrdinaryDiffEq", "PSDMatrices", "RecipesBase", "RecursiveArrayTools", "Reexport", "SciMLBase", "SimpleUnPack", "SnoopPrecompile", "SpecialMatrices", "StaticArrayInterface", "Statistics", "StructArrays", "TaylorIntegration", "TaylorSeries", "ToeplitzMatrices"]
-path = "/home/nbosch/.julia/dev/ProbNumDiffEq"
+git-tree-sha1 = "c493fb80c657d76d1dec35450efce2cd2ce8bfa3"
+repo-rev = "dev"
+repo-url = "https://github.com/nathanaelbosch/ProbNumDiffEq.jl.git"
 uuid = "bf3e78b0-7d74-48a5-b855-9609533b56a5"
 version = "0.11.0"
 

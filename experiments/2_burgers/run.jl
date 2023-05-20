@@ -5,56 +5,33 @@ import BayesExpIntExperiments as BEIE
 
 DIR = "experiments/benchmark_reaction_diffusion"
 
-prob, L = BEIE.prob_rd_1d_fisher()
-@info "run.jl problem size:" length(prob.u0)
+prob, L = BEIE.prob_burgers()
+@info "burgers_run with this size:" length(prob.u0)
 prob_appxjac = ODEProblem(ODEFunction(prob.f.f, jac=(J, u, p, t) -> (J .= L)),
-                          prob.u0, prob.tspan, prob.p)
+    prob.u0, prob.tspan, prob.p)
 ref_sol = solve(prob, RadauIIA5(), abstol=1e-20, reltol=1e-20)
-# import Plots
-# Plots.plot(ref_sol)
-# solve(prob, EK1(prior=IOUP(3, L)), adaptive=false, dt=1e-1);
-solve(prob, EK1(prior=IOUP(3, L)), adaptive=false, dt=1e-1);
-# using ProfileView
-# @profview solve(prob, EK1(prior=IOUP(3, L)), adaptive=false, dt=1e-1);
-# @profview for _ in 1:100 solve(prob, EK1(prior=IOUP(3, L)), adaptive=false, dt=1e-1) end
 
-# Visualize this a bit
-# import Plots
-# anim = Plots.@animate for t in 0.0:0.1:prob.tspan[2]
-#     Plots.plot(
-#         ref_sol(t),
-#         ylim=(0, 1),
-#         label="",
-#         title="t = $t",
-#         ylabel="u(x, t)",
-#         xlabel="x",
-#     )
-# end
-# Plots.gif(anim, "1dreactiondiffusion.gif", fps=15)
+sol = solve(prob, EK1(prior=IWP(3), smooth=false, diffusionmodel=FixedDiffusion()),
+    dense=false, adaptive=false, dt=1e-1)
 
 DM = FixedDiffusion()
 
 # Fixed steps:
-dts = 1.0 ./ 10.0 .^ (0:1//2:5//2)
+dts = 1.0 ./ 10.0 .^ (0:1//2:6//2)
 abstols = reltols = zero(dts)
-
-# Adaptive steps:
-# abstols = 1.0 ./ 10.0 .^ (4:13)
-# reltols = 1.0 ./ 10.0 .^ (1:10)
-# dts = nothing
 
 FINAL = true
 wp_fun(prob, alg; kwargs...) = BEIE.MyWorkPrecision(
     prob, alg, abstols, reltols;
     appxsol=ref_sol,
     timeseries_errors=!FINAL,
-    dense_errors=!FINAL,
     dts=dts,
-    dense=!FINAL,
     verbose=false,
+    dense_errors=!FINAL,
     save_everystep=!FINAL,
-    kwargs...
-        )
+    dense=!FINAL,
+    kwargs...,
+)
 
 results = Dict()
 results["Tsit5"] = wp_fun(prob, Tsit5())
@@ -113,9 +90,10 @@ for nu in NUS
             Dict(:Z => "IWP($nu)", :L => "IOUP($nu)", :F => "IOUP($nu)+RB")[extrapolation_jacobian]
 
         str = "$alg_str+$prior_str"
-        # @info "start $str"
-        results[str] = wp_fun(
-            _prob, alg(prior=prior, diffusionmodel=DM, smooth=!FINAL), name=str)
+        @info "start $str"
+        results[str] = wp_fun(_prob, alg(prior=prior, diffusionmodel=DM, smooth=!FINAL),
+            name=str)
     end
-    save(joinpath(DIR, "workprecisiondata.jld"), "results", results)
+    save(joinpath(DIR, "burgers_results.jld"), "results", results)
+    @info "Saved results to" joinpath(DIR, "burgers_results.jld")
 end

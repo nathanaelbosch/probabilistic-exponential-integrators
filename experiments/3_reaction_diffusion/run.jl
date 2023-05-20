@@ -5,24 +5,17 @@ import BayesExpIntExperiments as BEIE
 
 DIR = "experiments/benchmark_reaction_diffusion"
 
-prob, L = BEIE.prob_burgers()
-@info "burgers_run with this size:" length(prob.u0)
+prob, L = BEIE.prob_rd_1d_fisher()
+@info "run.jl problem size:" length(prob.u0)
 prob_appxjac = ODEProblem(ODEFunction(prob.f.f, jac=(J, u, p, t) -> (J .= L)),
-                          prob.u0, prob.tspan, prob.p)
+    prob.u0, prob.tspan, prob.p)
 ref_sol = solve(prob, RadauIIA5(), abstol=1e-20, reltol=1e-20)
-# import Plots
-# Plots.plot(ref_sol)
-# solve(prob, EK1());
-
-sol = solve(prob, EK1(prior=IWP(3), smooth=false, diffusionmodel=FixedDiffusion()),
-    dense=false, adaptive=false, dt=1e-1)
+solve(prob, EK1(prior=IOUP(3, L)), adaptive=false, dt=1e-1);
 
 DM = FixedDiffusion()
-# DM = DynamicDiffusion()
 
 # Fixed steps:
-# dts = 1.0 ./ 10.0 .^ (-1//2:1//2:2)
-dts = 1.0 ./ 10.0 .^ (0:1//2:6//2)
+dts = 1.0 ./ 10.0 .^ (0:1//2:5//2)
 abstols = reltols = zero(dts)
 
 FINAL = true
@@ -30,12 +23,12 @@ wp_fun(prob, alg; kwargs...) = BEIE.MyWorkPrecision(
     prob, alg, abstols, reltols;
     appxsol=ref_sol,
     timeseries_errors=!FINAL,
-    dts=dts,
-    verbose=false,
     dense_errors=!FINAL,
-    save_everystep=!FINAL,
+    dts=dts,
     dense=!FINAL,
-    kwargs...
+    verbose=false,
+    save_everystep=!FINAL,
+    kwargs...,
 )
 
 results = Dict()
@@ -95,10 +88,8 @@ for nu in NUS
             Dict(:Z => "IWP($nu)", :L => "IOUP($nu)", :F => "IOUP($nu)+RB")[extrapolation_jacobian]
 
         str = "$alg_str+$prior_str"
-        @info "start $str"
-        results[str] = wp_fun(_prob, alg(prior=prior, diffusionmodel=DM, smooth=!FINAL),
-                              name=str)
+        results[str] = wp_fun(
+            _prob, alg(prior=prior, diffusionmodel=DM, smooth=!FINAL), name=str)
     end
-    save(joinpath(DIR, "burgers_results.jld"), "results", results)
-    @info "Saved results to" joinpath(DIR, "burgers_results.jld")
+    save(joinpath(DIR, "workprecisiondata.jld"), "results", results)
 end

@@ -10,15 +10,15 @@ PlotTheme = Theme(
     # ylabelsize=8,
     # titlesize=8
     # ),
-    colgap = 10,
-    figure_padding = (1, 5, 1, 0),
+    colgap=10,
+    figure_padding=(1, 5, 1, 0),
     Axis=(
         titlesize=8,
         titlealign=:left,
         titlegap=1,
         titlefont="Times New Roman",
-        xlabelfont="Times",
-        ylabelfont="Times",
+        xlabelfont="Times New Roman",
+        ylabelfont="Times New Roman",
         xlabelsize=8,
         ylabelsize=8,
         xticklabelsize=7,
@@ -52,22 +52,21 @@ PlotTheme = Theme(
     ),
     Legend=(;
         labelsize=8,
-        labelfont="Times",
+        labelfont="Times New Roman",
         # patchlabelgap=-8,
         patchsize=(10, 10),
         framevisible=false,
         rowgap=1,
     ),
-    Colorbar = (
+    Colorbar=(
         ;
         spinewidth=0.5,
         tickwidth=0.5,
         ticksize=2,
-    )
+    ),
 )
 
 C = Makie.wong_colors()
-# C1, C2, C3 = Makie.wong_colors()[1:3]
 C2, C3 = C[2], C[3]
 _alg_styles = Dict(
     "Tsit5" => (
@@ -115,25 +114,25 @@ _alg_styles = Dict(
         color=C2,
         # linestyle=:solid,
         marker=:xcross,
-        markersize=MARKERSIZE+MARKERSIZEDIFF,
+        markersize=MARKERSIZE + MARKERSIZEDIFF,
     ),
     "EK1+IOUP" => (
         color=C2,
         # linestyle=:dash,
         marker=:star5,
-        markersize=MARKERSIZE+MARKERSIZEDIFF,
+        markersize=MARKERSIZE + MARKERSIZEDIFF,
     ),
     "EK0+IOUP+RB" => (
         color=C3,
         # linestyle=:solid,
         marker=:star4,
-        markersize=MARKERSIZE+MARKERSIZEDIFF,
+        markersize=MARKERSIZE + MARKERSIZEDIFF,
     ),
     "EK1+IOUP+RB" => (
         color=C3,
         # linestyle=:dash,
         marker=:cross,
-        markersize=MARKERSIZE+MARKERSIZEDIFF,
+        markersize=MARKERSIZE + MARKERSIZEDIFF,
     ),
 )
 
@@ -150,50 +149,10 @@ function get_label(alg_str)
         # return L"\text{%$ALG & %$PRIOR(%$NU)%$RB}"
         return rich(
             "$ALG & $PRIOR($NU)$RB",
-            color = PRIOR == "IOUP" ? :black : :dimgray,
+            color=PRIOR == "IOUP" ? :black : :dimgray,
         )
     else
         # return L"\text{%$alg_str}"
         return alg_str
     end
 end
-
-# Fixes from here: https://github.com/MakieOrg/Makie.jl/issues/2838
-# function Makie.Legend(fig_or_scene,
-#                       contents::AbstractArray,
-#                       labels::AbstractArray{<:Makie.Optional{Makie.RichText}},
-#                       title::Makie.Optional{<:Makie.RichText}=nothing;
-#                       kwargs...)
-#     if length(contents) != length(labels)
-#         error(
-#             "Number of elements not equal: $(length(contents)) content elements and $(length(labels)) labels.",
-#         )
-#     end
-
-#     entrygroups = Observable{Vector{Makie.EntryGroup}}([])
-#     legend = Legend(fig_or_scene, entrygroups; kwargs...)
-#     entries = [LegendEntry(label, content, legend)
-#                for (content, label) in zip(contents, labels)]
-#     entrygroups[] = [(title, entries)]
-#     legend
-# end
-
-# function Makie.LegendEntry(label::Makie.Optional{Makie.RichText}, contentelements::AbstractArray, legend; kwargs...)
-#     attrs = Attributes(label = label)
-
-#     kwargattrs = Attributes(kwargs)
-#     merge!(attrs, kwargattrs)
-
-#     elems = vcat(Makie.legendelements.(contentelements, Ref(legend))...)
-#     Makie.LegendEntry(elems, attrs)
-# end
-
-# function Makie.LegendEntry(label::Makie.Optional{Makie.RichText}, contentelement, legend; kwargs...)
-#     attrs = Attributes(label = label)
-
-#     kwargattrs = Attributes(kwargs)
-#     merge!(attrs, kwargattrs)
-
-#     elems = Makie.legendelements(contentelement, legend)
-#     Makie.LegendEntry(elems, attrs)
-# end
