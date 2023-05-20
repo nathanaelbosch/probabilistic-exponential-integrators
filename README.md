@@ -1,5 +1,9 @@
 # Probabilistic Exponential Integrators - Experiments
 
+<p align="center">
+<img alt="Figure 2" src="./figures/1_stability.svg" width="100%">
+</p>
+
 This repo contains the experiment code for the paper
 "Probabilistic Exponential Integrators" ([arxiv link](https://arxiv.org)).
 
