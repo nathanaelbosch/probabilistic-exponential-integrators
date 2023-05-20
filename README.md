@@ -10,14 +10,14 @@ This repo contains the experiment code for the paper
 ---
 
 __The functionality of the paper will be made available as part of the [ProbNumDiffEq.jl](https://nathanaelbosch.github.io/ProbNumDiffEq.jl) package.__
-It provides contains _fast_ ODE filters for first- and second-order ODEs, and even DAEs.
+It provides a range of fast probabilistic ODE solvers for first- and second-order ODEs and DAEs - and soon also probabilistic exponential integrators.
+Check out the [getting started](https://nathanaelbosch.github.io/ProbNumDiffEq.jl/stable/getting_started/) tutorial!
 
 ---
 
 ## Running the experiments
-The experiments are located in `./experiments/`;
-each subfolder has an individual README that explains the individual files.
-Since the scripts use the core located in `./src/`, code should be run from the root directory directly.
+The experiments are located in `./experiments/`.
+Code should be run from the root directory directly.
 
 First open `julia`, activate the local environment, and instantiate it to install all the packages:
 ```
