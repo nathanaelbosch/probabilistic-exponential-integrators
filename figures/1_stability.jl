@@ -9,6 +9,8 @@ Plots.theme(:default;
     markerstrokewidth=0.1,
 )
 
+DIR = @__DIR__
+
 function f(du, u, p, t)
     du[1] = -0.5u[1] + 20u[2]
     du[2] = -20u[2]
@@ -210,4 +212,6 @@ text!(ax_ek0_ioup, 0, 0, text=L"dt=%$dt_ek1",
     fontsize=8, align=(:left, :bottom), offset=(10, 1.5))
 
 trim!(fig.layout)
-save("../bayes-exp-int/figures/stability_comparison.pdf", fig, pt_per_unit=1)
+filename = joinpath(DIR, "1_stability.pdf")
+save(filename, fig, pt_per_unit=1)
+@info "Saved figure to $filename"

@@ -4,6 +4,8 @@ using CairoMakie, TuePlots, LaTeXStrings, ColorSchemes
 
 import BayesExpIntExperiments: PlotTheme
 
+DIR = @__DIR__
+
 COLORS = ColorSchemes.tableau_10.colors
 # COLORS = ColorSchemes.Set1_3
 ALPHA = 0.5
@@ -184,5 +186,6 @@ ylims!(ax_iwp, (-3, 3))
 ylims!(ax_ioup, (-3, 3))
 ylims!(ax_ioup_init, (-3, 3))
 
-save("../bayes-exp-int/figures/priors.pdf", fig, pt_per_unit=1)
-# save("plot.pdf", fig, pt_per_unit=1)
+filename = joinpath(DIR, "2_priors.pdf")
+save(filename, fig, pt_per_unit=1)
+@info "Saved figure to $filename"
