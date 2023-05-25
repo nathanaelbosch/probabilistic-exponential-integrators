@@ -5,7 +5,7 @@
 </p>
 
 This repo contains the experiment code for the paper
-"Probabilistic Exponential Integrators" ([arxiv link](https://arxiv.org)).
+"Probabilistic Exponential Integrators" ([arxiv](https://arxiv.org/abs/2305.14978)).
 
 ---
 
