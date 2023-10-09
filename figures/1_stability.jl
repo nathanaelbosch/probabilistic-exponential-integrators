@@ -45,7 +45,7 @@ sol_ek1 = solve(
     dt=dt_ek1,
     dense=SMOOTH,
 );
-sol_ek0_ioup = solve(prob, EK0(; prior=IOUP(order, L), diffusionmodel, smooth=SMOOTH);
+sol_ek0_ioup = solve(prob, ExpEK(; L, diffusionmodel, smooth=SMOOTH);
     adaptive=false, dt=dt_ek1, dense=SMOOTH);
 
 ############################################################################################
